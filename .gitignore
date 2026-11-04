@@ -1,44 +1,21 @@
-# dependencies
+# Node / Next.js
 node_modules/
-.pnp
-.pnp.js
-
-# testing
-coverage/
-
-# next.js
 .next/
 out/
-
-# production
 build/
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# local env files
-.env*.local
-.env
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -52,27 +29,6 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
-venv/
-ENV/
-env/
-.venv/
-
-# Environment Variables
-.env
-.env.local
-firebase-service-account*.json
-
-# Pytest / Coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# IDE / Editor
-.vscode/
-.idea/
-*.swp
-*.swo
 # Virtual Environments
 .venv/
 env/
@@ -89,8 +45,15 @@ htmlcov/
 # Environment Variables & Secrets
 .env
 *.local
+firebase-service-account*.json
 
 # Vector stores & local data artifacts
 ai/data/vectorstore/
 ai/data/test_vectorstore/
 *.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
