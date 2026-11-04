@@ -253,11 +253,14 @@ async def require_device_auth(
     """Authenticate an IoT device via HMAC token or fallback API Key."""
     import hmac
     if not x_device_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={"error": "device_auth_required", "message": "X-Device-ID header is required"},
-            headers={"WWW-Authenticate": "HMAC-SHA256"},
-        )
+        if x_device_key:
+            x_device_id = "ST-001-DEVICE"
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail={"error": "device_auth_required", "message": "X-Device-ID header is required"},
+                headers={"WWW-Authenticate": "HMAC-SHA256"},
+            )
 
     # 1. HMAC authentication (production standard)
     if x_device_token:
