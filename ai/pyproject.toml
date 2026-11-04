@@ -1,0 +1,75 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "streetair-ai"
+version = "1.0.0"
+description = "STREETAIR AI, ML & Data Intelligence Service"
+requires-python = ">=3.11"
+dependencies = [
+    # Web framework
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "httpx>=0.27.0",
+
+    # Configuration & validation
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "python-dotenv>=1.0.0",
+
+    # AI providers
+    "groq>=0.11.0",
+    "openai>=1.54.0",           # Ollama uses OpenAI-compatible API
+
+    # Web search
+    "tavily-python>=0.5.0",
+
+    # RAG / Vector store
+    "chromadb>=0.5.0",
+    "sentence-transformers>=3.3.0",
+
+    # ML / Data science
+    "numpy>=2.1.0",
+    "pandas>=2.2.0",
+    "scikit-learn>=1.5.0",
+    "statsmodels>=0.14.0",
+    "scipy>=1.14.0",
+
+    # Utilities
+    "structlog>=24.4.0",
+    "tenacity>=9.0.0",
+    "python-multipart>=0.0.12",
+    "anyio>=4.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.27.0",
+    "respx>=0.21.0",
+    "ruff>=0.7.0",
+    "mypy>=1.13.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore:.*:Warning",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+
