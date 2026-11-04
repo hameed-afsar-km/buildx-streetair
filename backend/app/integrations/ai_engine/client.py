@@ -57,19 +57,66 @@ class AIEngineClient:
     ) -> dict:
         """POST /internal/v1/chat"""
         self._validate_provider(provider)
+        
+        # Build messages payload for AI Engine schema
+        messages_list = []
+        for h in history:
+            role = h.get("role", "user")
+            content = h.get("content", "")
+            if content:
+                messages_list.append({"role": role, "content": content})
+        messages_list.append({"role": "user", "content": message})
+
+        st_ctx = None
+        if station_context and station_context.get("station_id"):
+            st_ctx = {
+                "station_id": station_context.get("station_id"),
+                "station_name": station_context.get("station_name"),
+                "readings": station_context.get("readings", []),
+                "data_source": station_context.get("data_source", "simulated"),
+            }
+
         payload = {
-            "message": message,
-            "provider": provider,
-            "conversation_id": conversation_id,
-            "history": history,
-            "station_context": station_context,
             "request_id": request_id,
+            "correlation_id": conversation_id,
+            "org_id": "streetair_org",
+            "user_id": "streetair_user",
+            "provider_preference": provider,
+            "messages": messages_list,
+            "station_context": st_ctx,
+            "enable_web_search": False,
+            "enable_rag": True,
         }
         try:
             async with self._client() as client:
                 response = await client.post("/internal/v1/chat", json=payload)
                 response.raise_for_status()
-                return response.json()
+                raw = response.json()
+                
+                # Transform AI engine response schema to backend expectation
+                citations = []
+                for rc in raw.get("rag_citations", []):
+                    citations.append({
+                        "title": rc.get("document_title") or rc.get("title") or "RAG Reference",
+                        "url": rc.get("url") or "#",
+                        "date": None,
+                        "source_type": "rag",
+                    })
+                for wc in raw.get("web_citations", []):
+                    citations.append({
+                        "title": wc.get("title") or "Web Search",
+                        "url": wc.get("url") or "#",
+                        "date": wc.get("published_date"),
+                        "source_type": "tavily",
+                    })
+
+                return {
+                    "content": raw.get("answer", ""),
+                    "provider": raw.get("provider", {}).get("name", provider) if isinstance(raw.get("provider"), dict) else provider,
+                    "model": raw.get("provider", {}).get("model") if isinstance(raw.get("provider"), dict) else None,
+                    "citations": citations,
+                    "message_id": raw.get("metadata", {}).get("request_id", request_id) if isinstance(raw.get("metadata"), dict) else request_id,
+                }
         except httpx.TimeoutException:
             logger.error("AI engine chat timeout", extra={"request_id": request_id})
             raise ServiceUnavailableError("AI service timed out. Please try again.")

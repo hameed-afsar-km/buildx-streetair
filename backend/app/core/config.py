@@ -90,6 +90,7 @@ class Settings(BaseSettings):
         default="change-me-32-bytes",
         description="HMAC secret for device token generation/verification",
     )
+    DEVICE_API_KEY: str = Field(default='streetair_secret_dev_key_2026', description='ESP32 Dev Key')
 
     # -------------------------------------------------------------------------
     # Rate limiting

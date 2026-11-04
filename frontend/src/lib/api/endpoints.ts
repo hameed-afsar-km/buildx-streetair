@@ -76,9 +76,69 @@ export async function getStationById(deviceId: string): Promise<MonitoringStatio
 // ----------------------------------------------------------------------
 export async function getLatestReading(deviceId?: string): Promise<AirReading> {
   const q = deviceId ? `?device_id=${encodeURIComponent(deviceId)}` : "";
-  return apiClient<AirReading>(`/api/v1/readings/latest${q}`, {}, () =>
-    getMockLatestReading(deviceId || "crescent-vandalur-01")
+
+  const rawResponse = await apiClient<any>(
+    `/api/v1/readings/latest${q}`,
+    { skipAuth: true },
+    () => getMockLatestReading(deviceId || "crescent-vandalur-01")
   );
+
+  // If mock data already has the right shape (has pollutants), return as-is
+  if (rawResponse && "pollutants" in rawResponse) {
+    return rawResponse as AirReading;
+  }
+
+  // Transform backend response → AirReading shape
+  if (rawResponse && "readings" in rawResponse && rawResponse.readings) {
+    const r = rawResponse.readings;
+    const aqi = typeof rawResponse.aqi === "number" ? rawResponse.aqi : 0;
+    const category = rawResponse.aqi_category || "Good";
+
+    // Map scenario_id to ScenarioKey
+    const scenarioIdMap: Record<string, ScenarioKey> = {
+      "normal": "scenario_1_normal",
+      "traffic_congestion": "scenario_2_traffic",
+      "construction_dust": "scenario_3_construction",
+      "industrial_emissions": "scenario_4_industrial",
+      "waste_burning": "scenario_5_waste_burning",
+      "high_humidity": "scenario_6_humidity",
+      "smoke_event": "scenario_7_smoke",
+      "pollution_dispersal": "scenario_8_dispersal",
+      "extreme_pollution": "scenario_9_extreme",
+    };
+    const scenarioKey: ScenarioKey = scenarioIdMap[rawResponse.scenario_id || "normal"] || "scenario_1_normal";
+
+    return {
+      reading_id: rawResponse.reading_id || `rdg_${Date.now()}`,
+      device_id: rawResponse.device_id || deviceId || "unknown",
+      station_name: rawResponse.station_name,
+      timestamp: rawResponse.timestamp || new Date().toISOString(),
+      source: (rawResponse.source || "SIMULATED") as "HARDWARE" | "SIMULATED" | "DEMONSTRATION" | "HISTORICAL",
+      data_status: "LIVE" as const,
+      scenario: scenarioKey,
+      aqi,
+      category: category as any,
+      pollutants: {
+        pm25: { value: r.pm25 ?? 0, unit: "µg/m³", sub_index: Math.min(500, Math.round((r.pm25 ?? 0) * 1.6)), safe_threshold: 60, description: "Fine inhalable particles ≤ 2.5 micrometers" },
+        pm10: { value: r.pm10 ?? 0, unit: "µg/m³", sub_index: Math.min(500, Math.round((r.pm10 ?? 0) * 1.1)), safe_threshold: 100, description: "Inhalable coarse particles ≤ 10 micrometers" },
+        no2: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 80, description: "Nitrogen Dioxide (derived from MQ135)" },
+        so2: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 80, description: "Sulfur Dioxide" },
+        co: { value: 0, unit: "ppm", sub_index: 0, safe_threshold: 2.0, description: "Carbon Monoxide" },
+        o3: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 100, description: "Ground-level Ozone" },
+        voc: { value: r.mq135_raw ? Math.round(r.mq135_raw / 10) : 50, unit: "ppb", sub_index: null, safe_threshold: 300, description: "MQ135 Raw Gas Sensor (uncalibrated VOC proxy)" },
+      },
+      weather: {
+        temperature: r.temperature ?? 28,
+        humidity: r.humidity ?? 60,
+        wind_speed: 12.8,
+        wind_direction: "ENE",
+        pressure: r.pressure ?? 1012,
+      },
+    };
+  }
+
+  // Fallback to mock
+  return getMockLatestReading(deviceId || "crescent-vandalur-01");
 }
 
 export async function getReadingHistory(
@@ -240,17 +300,47 @@ export async function getPredictions(stationId?: string): Promise<PredictionFore
 // AI Suite
 // ----------------------------------------------------------------------
 export async function sendAiChatMessage(request: AiChatRequest): Promise<AiChatResponse> {
+  // Transform frontend AiChatRequest → backend ChatRequest schema
+  const messages = request.messages || [];
+  const lastUserMsg = [...messages].reverse().find((m) => m.role === "user");
+  const history = messages.slice(0, -1); // All but the last message
+
+  const backendPayload = {
+    message: lastUserMsg?.content || "",
+    provider: request.provider || "groq",
+    station_context: request.context?.station_id || null,
+    conversation_id: null,
+    history: history.map((m) => ({ role: m.role, content: m.content })),
+  };
+
   return apiClient<AiChatResponse>(
     "/api/v1/ai/chat",
     {
       method: "POST",
-      body: JSON.stringify(request),
+      body: JSON.stringify(backendPayload),
     },
     () => {
-      const lastMsg = request.messages[request.messages.length - 1]?.content || "";
+      const lastMsg = lastUserMsg?.content || "";
       return getMockAiChatReply(lastMsg, request.provider || "groq", request.model);
     }
-  );
+  ).then((rawResponse: any) => {
+    // Backend returns ChatResponse shape; transform to AiChatResponse
+    if (rawResponse && "content" in rawResponse && !("reply" in rawResponse)) {
+      return {
+        reply: rawResponse.content || "",
+        provider_used: rawResponse.provider || request.provider || "groq",
+        model_used: rawResponse.model || "llama-3.3-70b-versatile",
+        citations: (rawResponse.citations || []).map((c: any) => ({
+          title: c.title || "",
+          url: c.url || "#",
+          source_type: c.source_type || "rag_document",
+          snippet: c.snippet || c.date || undefined,
+        })),
+        evidence: [],
+      } as AiChatResponse;
+    }
+    return rawResponse as AiChatResponse;
+  });
 }
 
 export async function runWhatIfSimulation(policy: {

@@ -248,55 +248,44 @@ async def get_optional_user(
 async def require_device_auth(
     x_device_id: str | None = Header(default=None, alias="X-Device-ID"),
     x_device_token: str | None = Header(default=None, alias="X-Device-Token"),
+    x_device_key: str | None = Header(default=None, alias="X-Device-Key"),
 ) -> str:
-    """
-    Authenticate an IoT device using HMAC-SHA256 header tokens.
-
-    Headers
-    -------
-    X-Device-ID
-        The unique identifier of the device (provisioned at registration).
-    X-Device-Token
-        The HMAC-SHA256 hex token derived from the device ID and the shared
-        secret (``settings.DEVICE_AUTH_SECRET``).
-
-    Returns
-    -------
-    str
-        The verified *device_id*, ready for downstream use in route handlers.
-
-    Raises
-    ------
-    HTTP 401
-        If either header is missing or the token does not match the device ID.
-    """
-    if not x_device_id or not x_device_token:
+    """Authenticate an IoT device via HMAC token or fallback API Key."""
+    import hmac
+    if not x_device_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "error": "device_auth_required",
-                "message": "X-Device-ID and X-Device-Token headers are required",
-            },
+            detail={"error": "device_auth_required", "message": "X-Device-ID header is required"},
             headers={"WWW-Authenticate": "HMAC-SHA256"},
         )
 
-    if not verify_device_token(
-        token=x_device_token,
-        device_id=x_device_id,
-        secret=settings.DEVICE_AUTH_SECRET,
-    ):
-        logger.warning(
-            "device_auth_failed",
-            device_id=x_device_id,
-        )
+    # 1. HMAC authentication (production standard)
+    if x_device_token:
+        if verify_device_token(token=x_device_token, device_id=x_device_id, secret=settings.DEVICE_AUTH_SECRET):
+            logger.debug("device_auth_ok_hmac", device_id=x_device_id)
+            return x_device_id
+        logger.warning("device_auth_failed_hmac", device_id=x_device_id)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail={
-                "error": "device_auth_failed",
-                "message": "Invalid device token",
-            },
+            detail={"error": "device_auth_failed", "message": "Invalid HMAC device token"},
             headers={"WWW-Authenticate": "HMAC-SHA256"},
         )
 
-    logger.debug("device_auth_ok", device_id=x_device_id)
-    return x_device_id
+    # 2. ESP32 Simple API Key authentication (hardware demo fallback)
+    if x_device_key:
+        dev_key = getattr(settings, "DEVICE_API_KEY", "streetair_secret_dev_key_2026")
+        if hmac.compare_digest(x_device_key, dev_key):
+            logger.debug("device_auth_ok_apikey", device_id=x_device_id)
+            return x_device_id
+        logger.warning("device_auth_failed_apikey", device_id=x_device_id)
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "device_auth_failed", "message": "Invalid device API key"},
+            headers={"WWW-Authenticate": "APIKey"},
+        )
+
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail={"error": "device_auth_required", "message": "Either X-Device-Token or X-Device-Key header is required"},
+        headers={"WWW-Authenticate": "HMAC-SHA256"},
+    )

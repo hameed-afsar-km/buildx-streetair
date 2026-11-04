@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, Request
 from app.core.dependencies import require_authenticated_user
 from app.schemas.auth import UserContext
 from app.schemas.ai import ChatRequest, ChatResponse, ScenarioRequest, ScenarioResponse
+from app.schemas.readings import SensorValues
 from app.integrations.ai_engine.client import ai_engine_client
 from app.integrations.firebase import get_firestore
 from app.repositories.predictions_repository import ConversationsRepository, ConversationMessagesRepository
@@ -89,7 +90,7 @@ async def get_scenario_metadata(
         scenario_id=payload.scenario_id,
         scenario_name=sc[0],
         description=sc[1],
-        expected_readings=sc[2],
+        expected_readings=SensorValues(**sc[2]),
         aqi_estimate=None,
         health_advisory="Demonstration scenario only — not verified regulatory data.",
     )

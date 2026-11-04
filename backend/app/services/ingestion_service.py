@@ -41,6 +41,20 @@ VALID_SCENARIO_IDS = {
     "normal", "traffic_congestion", "construction_dust",
     "industrial_emissions", "waste_burning", "high_humidity",
     "smoke_event", "pollution_dispersal", "extreme_pollution",
+    # Short aliases from ESP32 keypad firmware
+    "traffic", "construction", "industrial", "smoke", "dispersal", "extreme",
+}
+
+SCENARIO_SHORT_TO_CANONICAL = {
+    "normal": "normal",
+    "traffic": "traffic_congestion",
+    "construction": "construction_dust",
+    "industrial": "industrial_emissions",
+    "waste_burning": "waste_burning",
+    "high_humidity": "high_humidity",
+    "smoke": "smoke_event",
+    "dispersal": "pollution_dispersal",
+    "extreme": "extreme_pollution",
 }
 
 
@@ -92,10 +106,14 @@ class IngestionService:
         if data_source not in VALID_DATA_SOURCES:
             raise ValidationError(f"Invalid data_source '{data_source}'. Must be one of: {VALID_DATA_SOURCES}")
         
-        # 4. Validate scenario_id if present
+        # 4. Validate and normalize scenario_id if present
         scenario_id = payload.get("scenario_id")
-        if scenario_id and scenario_id not in VALID_SCENARIO_IDS:
-            raise ValidationError(f"Invalid scenario_id '{scenario_id}'.")
+        if scenario_id:
+            if scenario_id not in VALID_SCENARIO_IDS:
+                raise ValidationError(f"Invalid scenario_id '{scenario_id}'.")
+            # Normalize to canonical form
+            scenario_id = SCENARIO_SHORT_TO_CANONICAL.get(scenario_id, scenario_id)
+            payload["scenario_id"] = scenario_id
         
         # 5. Validate timestamp
         timestamp = payload.get("timestamp")
@@ -200,7 +218,7 @@ class IngestionService:
                 logger.error("WebSocket broadcast failed (non-critical)", exc_info=True)
         
         # 14. Queue async anomaly detection (non-blocking)
-        if self.ai_client and not is_simulated:
+        if self.ai_client:
             import asyncio
             asyncio.create_task(self._async_anomaly_check(
                 station_id, reading_id, readings, request_id

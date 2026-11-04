@@ -343,7 +343,10 @@ void transmitScenarioData() {
   }
 
   http.addHeader("Content-Type", "application/json");
-  // Device authentication header (matches FastAPI backend contract)
+  // Device authentication headers (STREETAIR Backend Contract)
+  // X-Device-ID  : Device identifier (required by backend require_device_auth)
+  // X-Device-Key : Simple API key (Mode 2 auth for ESP32 hardware demo)
+  http.addHeader("X-Device-ID", DEVICE_ID);
   http.addHeader("X-Device-Key", DEVICE_API_KEY);
 
   int httpCode = http.POST(payload);

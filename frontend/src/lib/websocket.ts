@@ -53,7 +53,11 @@ class LiveWebSocketManager {
     this.setStatus(this.reconnectAttempts === 0 ? "connecting" : "reconnecting");
 
     try {
-      this.ws = new WebSocket(this.url);
+      const wsUrl = authToken
+        ? `${this.url}${this.url.includes("?") ? "&" : "?"}token=${encodeURIComponent(authToken)}`
+        : `${this.url}${this.url.includes("?") ? "&" : "?"}public=true`;
+
+      this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
         this.reconnectAttempts = 0;
@@ -75,12 +79,44 @@ class LiveWebSocketManager {
       this.ws.onmessage = (event) => {
         this.lastMessageTimestamp = new Date();
         try {
-          const data = JSON.parse(event.data) as WebSocketInboundMessage;
-          if (data.type === "ping") {
+          const data = JSON.parse(event.data);
+
+          // Handle backend event format: { event, version, timestamp, data }
+          if (data && data.event) {
+            if (data.event === "heartbeat" || data.event === "ping") {
+              this.send({ action: "ping" });
+              return;
+            }
+            if (data.event === "connection.established") {
+              return;
+            }
+            if (data.event === "reading.created" && data.data) {
+              const rd = data.data;
+              const transformedMsg: WebSocketInboundMessage = {
+                type: "reading_update",
+                device_id: rd.station_id || rd.device_id || this.currentDeviceId,
+                reading: this._transformBackendReading(rd),
+              };
+              this.notifyMessage(transformedMsg);
+              return;
+            }
+            if (data.event === "alert.created" && data.data) {
+              this.notifyMessage({
+                type: "alert_created",
+                alert: data.data,
+              } as any);
+              return;
+            }
+            return;
+          }
+
+          // Handle frontend direct protocol format
+          const msg = data as WebSocketInboundMessage;
+          if (msg.type === "ping") {
             this.send({ action: "ping" });
             return;
           }
-          this.notifyMessage(data);
+          this.notifyMessage(msg);
         } catch (err) {
           console.warn("Received malformed WebSocket packet", err);
         }
@@ -182,7 +218,6 @@ class LiveWebSocketManager {
     if (this.isIntentionallyClosed) return;
 
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      // Reached max attempts; mark as disconnected/offline
       this.setStatus("disconnected");
       return;
     }
@@ -190,7 +225,6 @@ class LiveWebSocketManager {
     this.reconnectAttempts++;
     this.setStatus("reconnecting");
 
-    // Exponential backoff with jitter: delay = base * 2^(attempts-1) + jitter
     const exp = Math.min(this.maxDelayMs, this.baseDelayMs * Math.pow(1.8, this.reconnectAttempts - 1));
     const jitter = Math.random() * 800;
     const delay = Math.round(exp + jitter);
@@ -216,8 +250,72 @@ class LiveWebSocketManager {
       this.pingInterval = null;
     }
   }
+
+  private _transformBackendReading(rd: any): AirReading {
+    const scenarioIdMap: Record<string, ScenarioKey> = {
+      normal: "scenario_1_normal",
+      traffic_congestion: "scenario_2_traffic",
+      construction_dust: "scenario_3_construction",
+      industrial_emissions: "scenario_4_industrial",
+      waste_burning: "scenario_5_waste_burning",
+      high_humidity: "scenario_6_humidity",
+      smoke_event: "scenario_7_smoke",
+      pollution_dispersal: "scenario_8_dispersal",
+      extreme_pollution: "scenario_9_extreme",
+    };
+
+    const r = rd.readings || {};
+    const aqi = typeof rd.aqi === "object" ? rd.aqi?.value ?? 0 : typeof rd.aqi === "number" ? rd.aqi : 0;
+    const category = typeof rd.aqi === "object" ? rd.aqi?.category ?? "Good" : rd.aqi_category || "Good";
+    const scenarioKey: ScenarioKey = scenarioIdMap[rd.scenario_id || "normal"] || "scenario_1_normal";
+
+    return {
+      reading_id: rd.reading_id || `rdg_${Date.now()}`,
+      device_id: rd.device_id || rd.station_id || this.currentDeviceId,
+      station_name: rd.station_name,
+      timestamp: rd.timestamp ? new Date(rd.timestamp).toISOString() : new Date().toISOString(),
+      source: (rd.data_source || "SIMULATED").toUpperCase() as any,
+      data_status: "LIVE",
+      scenario: scenarioKey,
+      aqi,
+      category: category as any,
+      pollutants: {
+        pm25: {
+          value: r.pm25 ?? 0,
+          unit: "µg/m³",
+          sub_index: Math.min(500, Math.round((r.pm25 ?? 0) * 1.6)),
+          safe_threshold: 60,
+          description: "Fine inhalable particles ≤ 2.5 micrometers",
+        },
+        pm10: {
+          value: r.pm10 ?? 0,
+          unit: "µg/m³",
+          sub_index: Math.min(500, Math.round((r.pm10 ?? 0) * 1.1)),
+          safe_threshold: 100,
+          description: "Inhalable coarse particles ≤ 10 micrometers",
+        },
+        no2: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 80, description: "Nitrogen Dioxide" },
+        so2: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 80, description: "Sulfur Dioxide" },
+        co: { value: 0, unit: "ppm", sub_index: 0, safe_threshold: 2.0, description: "Carbon Monoxide" },
+        o3: { value: 0, unit: "ppb", sub_index: 0, safe_threshold: 100, description: "Ground-level Ozone" },
+        voc: {
+          value: r.mq135_raw ? Math.round(r.mq135_raw / 10) : 50,
+          unit: "ppb",
+          sub_index: null,
+          safe_threshold: 300,
+          description: "MQ135 Raw Gas Sensor (uncalibrated VOC proxy)",
+        },
+      },
+      weather: {
+        temperature: r.temperature ?? 28,
+        humidity: r.humidity ?? 60,
+        wind_speed: 12.8,
+        wind_direction: "ENE",
+        pressure: r.pressure ?? 1012,
+      },
+    };
+  }
 }
 
 // Singleton instance for the application
 export const liveWebSocket = new LiveWebSocketManager();
-
