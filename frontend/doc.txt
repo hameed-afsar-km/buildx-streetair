@@ -1,0 +1,834 @@
+================================================================================
+STREETAIR — FRONTEND ARCHITECTURE, PAGES SPECIFICATION & SYSTEM FLOW MANUAL
+AI-POWERED ENVIRONMENTAL INTELLIGENCE SAAS PLATFORM
+================================================================================
+Document File: frontend/doc.txt
+Version: 1.0.0
+Framework: Next.js 14 (App Router) | TypeScript (Strict) | Tailwind CSS
+Standards: Central Pollution Control Board (CPCB) Indian National AQI (NAQI)
+Primary Site: B.S. Abdur Rahman Crescent Institute of Science and Technology,
+              GST Road, Vandalur, Chennai, Tamil Nadu – 600048, India
+              Coordinates: 12.8797° N, 80.0833° E (Station: crescent-vandalur-01)
+================================================================================
+
+
+TABLE OF CONTENTS
+-----------------
+1. EXECUTIVE SUMMARY & CONCEPTUAL FOUNDATION
+2. CORE WORKFLOW & DATA PIPELINE ARCHITECTURE
+3. HARDWARE MATRIX (9-SCENARIO ESP32 KEYPAD SIMULATION)
+4. COMPLETE SITE MAP & PAGE-BY-PAGE SPECIFICATION
+   4.1 PUBLIC ENVIRONMENTAL EXPERIENCE (17 ROUTES)
+   4.2 CITIZEN CONTRIBUTOR PORTAL (9 ROUTES)
+   4.3 AI INTELLIGENCE SUITE (6 ROUTES)
+   4.4 ORGANISATION PORTAL — CRESCENT INSTITUTE (10 ROUTES)
+   4.5 PLATFORM ADMIN COMMAND CENTRE (17 ROUTES)
+   4.6 AUTHENTICATION & PUBLIC UTILITIES (2 ROUTES)
+5. SYSTEM INTERACTION FLOWS & USER JOURNEYS
+   5.1 DEMONSTRATION & HARDWARE SCENARIO SWITCHING FLOW
+   5.2 CITIZEN POLLUTION REPORTING & MODERATION PIPELINE
+   5.3 REAL-TIME WEBSOCKET TELEMETRY STREAMING FLOW
+   5.4 AI CHAT, RAG RETRIEVAL & EVIDENCE INJECTION FLOW
+   5.5 REGULATORY COMPLIANCE AUDIT EXPORT FLOW (CPCB FORM V)
+   5.6 POLICY WHAT-IF SIMULATION FLOW
+6. DATA INTEGRITY, LABELS & SCIENTIFIC TRANSPARENCY
+7. TECHNOLOGY STACK & DESIGN SYSTEM SPECIFICATIONS
+
+
+================================================================================
+1. EXECUTIVE SUMMARY & CONCEPTUAL FOUNDATION
+================================================================================
+
+STREETAIR is an environmental intelligence SaaS platform designed to transition
+from a high-fidelity startup hackathon demonstration into an enterprise-grade
+B2B2G environmental monitoring and decision-support system.
+
+It bridges low-cost IoT edge sensing (ESP32 micro-stations), neural anomaly
+detection, automated regulatory compliance (CPCB/SPCB), and citizen science.
+
+TARGET SECTORS (B2B2G):
+- Higher Educational Campuses & Universities (e.g. Crescent Institute)
+- Smart City & Municipal Authorities (e.g. CMDA, Greater Chennai Corporation)
+- Industrial Manufacturing & Construction Corridors (e.g. Maraimalai Nagar, GST)
+- Environmental Consultants & Compliance Auditors
+- Public Citizens and Commuters
+
+REGULATORY STANDARDS COMPLIANCE:
+- Indian National Air Quality Index (NAQI) 6-Category Standard:
+  * Good (0–50): Minimal health impact.
+  * Moderate / Satisfactory (51–100): Minor breathing discomfort to sensitive people.
+  * Poor / Moderately Polluted (101–200): Breathing discomfort to people with asthma.
+  * Unhealthy / Poor (201–300): Breathing discomfort to most people on prolonged exposure.
+  * Very Unhealthy (301–400): Respiratory illness on prolonged exposure.
+  * Severe / Hazardous (401–500): Affects healthy people, severely impacts those with disease.
+- Monitored Pollutants: PM2.5 (µg/m³), PM10 (µg/m³), NO2 (ppb), SO2 (ppb),
+  CO (ppm/mg/m³), O3 (ppb), VOC, Temperature (°C), Relative Humidity (%).
+
+
+================================================================================
+2. CORE WORKFLOW & DATA PIPELINE ARCHITECTURE
+================================================================================
+
+The platform operates across six interconnected operational phases:
+
+  [1. MONITOR]  --> Continuous telemetry ingestion from physical hardware or
+                    demonstration scenario engine via FastAPI and WebSockets.
+  [2. DETECT]   --> Threshold checks and isolation forest models identify
+                    micro-sensor spikes and spatial plume clusters.
+  [3. INVESTIGATE]-> Spatio-temporal triangulation correlating sensor readings
+                    with wind vectors and crowd-sourced citizen observations.
+  [4. ANALYSE]  --> Neural source apportionment (Pollution Detective) attributes
+                    likely causes (vehicular, dust, industrial, biomass).
+  [5. PREDICT]  --> LSTM and Prophet models generate 24h to 72h rolling forecasts
+                    with confidence intervals and diurnal variance.
+  [6. RESPOND]  --> Automated emergency dispatches, webhook alerts (Slack/Teams),
+                    and one-click CPCB Schedule VI environmental audit reports.
+
+
+================================================================================
+3. HARDWARE MATRIX (9-SCENARIO ESP32 KEYPAD SIMULATION)
+================================================================================
+
+The live demonstration utilizes an ESP32 hardware station with a 3x3 numeric
+keypad. Each key triggers an atmospheric simulation scenario broadcasted
+in real-time across the platform:
+
+KEY 1: NORMAL AIR QUALITY (Baseline)
+- AQI: 38 (Good) | PM2.5: 14 µg/m³ | PM10: 28 µg/m³ | NO2: 12 ppb
+- Condition: Typical clean coastal morning breeze across Crescent campus.
+
+KEY 2: TRAFFIC CONGESTION
+- AQI: 168 (Unhealthy) | PM2.5: 78 µg/m³ | PM10: 142 µg/m³ | NO2: 84 ppb
+- Condition: Heavy diesel bus and truck congestion along the GST Road corridor.
+
+KEY 3: CONSTRUCTION DUST
+- AQI: 185 (Unhealthy) | PM2.5: 42 µg/m³ | PM10: 240 µg/m³ | NO2: 18 ppb
+- Condition: Elevated coarse particulates from flyover civil engineering works.
+
+KEY 4: INDUSTRIAL EMISSIONS
+- AQI: 245 (Very Unhealthy) | PM2.5: 112 µg/m³ | SO2: 68 ppb | NO2: 92 ppb
+- Condition: Chemical plume transport from Maraimalai Nagar industrial belt.
+
+KEY 5: WASTE BURNING
+- AQI: 320 (Hazardous) | PM2.5: 188 µg/m³ | CO: 4.8 mg/m³ | VOC: 420 ppb
+- Condition: Open municipal solid waste or agricultural biomass combustion.
+
+KEY 6: HIGH HUMIDITY EVENT
+- AQI: 55 (Moderate) | Humidity: 92% | PM2.5: 22 µg/m³ | Temp: 24°C
+- Condition: Pre-monsoon maritime moisture trap causing hygroscopic swelling.
+
+KEY 7: SMOKE EVENT
+- AQI: 195 (Unhealthy) | PM2.5: 125 µg/m³ | CO: 2.8 mg/m³ | Visibility: Low
+- Condition: Concentrated smoke plume from nearby vegetation or tire fire.
+
+KEY 8: POLLUTION DISPERSAL
+- AQI: 42 (Good) | Wind Speed: 18.5 km/h ENE | Rapid decay rate
+- Condition: High coastal wind shear clearing local stagnation pockets.
+
+KEY 9: EXTREME MULTI-SOURCE POLLUTION
+- AQI: 445 (Severe / Hazardous) | PM2.5: 380 µg/m³ | PM10: 520 µg/m³
+- Condition: Combined thermal winter boundary inversion, gridlock, and biomass smoke.
+
+
+================================================================================
+4. COMPLETE SITE MAP & PAGE-BY-PAGE SPECIFICATION
+================================================================================
+
+--------------------------------------------------------------------------------
+4.1 PUBLIC ENVIRONMENTAL EXPERIENCE (17 ROUTES)
+--------------------------------------------------------------------------------
+
+1. Route: /
+   - File: src/app/page.tsx
+   - Purpose: Master public landing and value-proposition portal.
+   - Content:
+     * Hero section with live Crescent Institute telemetry badge and pulse dot.
+     * Interactive 9-scenario hardware keypad showcase.
+     * Core platform workflow diagrams (Monitor -> Detect -> Respond).
+     * Sector-specific solutions (Municipalities, Industries, Universities).
+     * Public header with navigation and theme switcher (Dark/Light).
+     * Comprehensive 5-column footer with contact and legal links.
+
+2. Route: /dashboard
+   - File: src/app/dashboard/page.tsx
+   - Purpose: Public-facing live air quality overview without login.
+   - Content:
+     * Primary station overview (Crescent Vandalur Station 01).
+     * Compact scenario switcher dropdown for instant demo toggling.
+     * Live WebSocket connection indicator with auto-reconnection status.
+     * Metric cards: Current NAQI, Dominant Pollutant, Humidity, Temp, Wind.
+     * 24-hour interactive rolling AQI area chart with CPCB reference lines.
+     * Criteria pollutant breakdown bar chart against safe exposure thresholds.
+     * Embedded interactive Leaflet OpenStreetMap preview with station marker.
+     * Active threshold exceedance alerts and recent citizen reports feed.
+
+3. Route: /map
+   - File: src/app/map/page.tsx
+   - Purpose: Full-screen GIS spatial explorer.
+   - Content:
+     * Full-viewport Leaflet Map with OpenStreetMap CartoDB dark/light tiles.
+     * Custom colored station pins colored dynamically by NAQI severity.
+     * Spatial DBSCAN hotspot radius circles with popup information.
+     * Side drawer station inspector displaying live sub-indices and telemetry.
+     * Map legend illustrating Indian NAQI color categories.
+     * Layer toggle controls: Stations, Hotspots, Interpolation Heatmap overlay.
+
+4. Route: /stations
+   - File: src/app/stations/page.tsx
+   - Purpose: Directory of all monitoring nodes across the regional network.
+   - Content:
+     * Search bar filtering by station name, identifier, or sector.
+     * Status filter (Online, Offline, Maintenance, Calibrating).
+     * Card grid displaying current AQI, hardware operational status,
+       coordinates, last packet timestamp, and primary pollutant.
+
+5. Route: /stations/[stationId]
+   - File: src/app/stations/[stationId]/page.tsx
+   - Purpose: Individual station telemetry deep-dive.
+   - Content:
+     * Station header with hardware model, serial number, and firmware version.
+     * Detailed 6-criteria pollutant matrix (PM2.5, PM10, NO2, SO2, CO, O3).
+     * 24-hour high-resolution history area chart.
+     * Micro-meteorological readings (temperature, humidity, wind vector).
+     * Raw payload metadata inspector for research reproducibility.
+
+6. Route: /alerts
+   - File: src/app/alerts/page.tsx
+   - Purpose: Public environmental warnings and threshold exceedances.
+   - Content:
+     * Active alerts list categorized by severity (Critical, High, Moderate).
+     * Threshold breach explanation (e.g., PM2.5 > 60 µg/m³ 24h standard).
+     * Recommended health advisories for outdoor exercise, masks, and windows.
+
+7. Route: /incidents
+   - File: src/app/incidents/page.tsx
+   - Purpose: Public investigation log of verified pollution occurrences.
+   - Content:
+     * Incident timeline with status badges (Detected, Investigating, Resolved).
+     * Peak AQI recorded during incident vs baseline ambient conditions.
+     * Machine-learning root-cause apportionment hypothesis and confidence %.
+
+8. Route: /history
+   - File: src/app/history/page.tsx
+   - Purpose: Historical air quality timeline explorer.
+   - Content:
+     * Date range selector and resolution picker (1-hour, 24-hour rollup).
+     * Interactive timeline area chart showing diurnal traffic patterns.
+     * CPCB criteria limit reference bands.
+
+9. Route: /nearby-air
+   - File: src/app/nearby-air/page.tsx
+   - Purpose: Location-aware nearest monitoring station finder.
+   - Content:
+     * Browser GPS geolocation request button.
+     * Distance calculation in kilometers to the nearest active sensor.
+     * Spatial coverage disclosure explaining distance limits and micro-climate.
+
+10. Route: /clean-air-navigation
+    - File: src/app/clean-air-navigation/page.tsx
+    - Purpose: Comparative pedestrian and commuter route exposure analyzer.
+    - Content:
+      * Route comparison: Highway GST Road corridor vs Campus Greenway Route.
+      * Estimated particulate inhalation reduction percentage (-42% PM2.5).
+      * Prominent scientific disclaimer regarding spatial model approximations.
+
+11. Route: /platform
+    - File: src/app/platform/page.tsx
+    - Purpose: SaaS technical architecture and engineering methodology.
+    - Content:
+      * Edge sensor ingestion layer (ESP32, LoRaWAN, 4G, MQTT, WebSockets).
+      * Processing engine (FastAPI, TimescaleDB, Redis, Celery).
+      * Machine learning layer (LSTM forecasting, Isolation Forests, Groq/Ollama).
+
+12. Route: /pricing
+    - File: src/app/pricing/page.tsx
+    - Purpose: Commercial multi-tenant subscription tiers.
+    - Content:
+      * Currency: Indian Rupees (₹ / INR).
+      * Billing toggle: Monthly vs Annual (20% discount).
+      * 3 Tiers: Starter Beacon (₹4,999/mo), Professional (₹19,999/mo),
+        Enterprise Fleet (₹74,999/mo).
+      * Comprehensive technical feature comparison matrix.
+
+13. Route: /contact
+    - File: src/app/contact/page.tsx
+    - Purpose: Enterprise demo scheduling and inquiry portal.
+    - Content:
+      * Interactive lead generation form (Name, Work Email, Campus, Sector, Message).
+      * 30-minute Crescent Institute hardware demo booking toggle.
+      * Office address and verified institutional contact channels.
+
+14. Route: /privacy
+    - File: src/app/privacy/page.tsx
+    - Purpose: Privacy Policy compliant with India DPDP Act 2023.
+    - Content:
+      * Personal data handling rules, telemetry retention limits (30–90 days).
+      * Explicit simulated vs hardware data disclosure statement.
+      * Grievance officer contact details situated in Vandalur, Chennai.
+
+15. Route: /terms
+    - File: src/app/terms/page.tsx
+    - Purpose: Legal terms of service.
+    - Content:
+      * Non-certified indicative sensor data disclaimer.
+      * Permitted acceptable usage, community reporting guidelines.
+      * Legal jurisdiction: Chennai, Tamil Nadu, India.
+
+--------------------------------------------------------------------------------
+4.2 CITIZEN CONTRIBUTOR PORTAL (9 ROUTES)
+--------------------------------------------------------------------------------
+
+16. Route: /app
+    - File: src/app/app/page.tsx
+    - Purpose: Personal dashboard for registered citizens and students.
+    - Content:
+      * Current neighborhood air quality card with health recommendation.
+      * User's submitted report count, verified reports, and community points.
+      * Quick shortcut buttons: Submit Report, Check Route, Ask AI Assistant.
+
+17. Route: /app/reports
+    - File: src/app/app/reports/page.tsx
+    - Purpose: Archive of all community pollution incident reports.
+    - Content:
+      * Filter by status (Submitted, Under Review, Verified, Resolved, Rejected).
+      * Cards showing report category, photo thumbnail, location, and reviewer notes.
+
+18. Route: /app/reports/new
+    - File: src/app/app/reports/new/page.tsx
+    - Purpose: 3-step community incident report wizard.
+    - Content:
+      * Step 1: Category selection (Smoke, Dust, Waste Burning, Odour, Industrial).
+      * Step 2: Location capture (GPS autofill + street address) and photo upload.
+      * Step 3: Textual description, review summary, and submission.
+
+19. Route: /app/reports/[reportId]
+    - File: src/app/app/reports/[reportId]/page.tsx
+    - Purpose: Detailed progress tracking for a specific submitted report.
+    - Content:
+      * 4-stage visual pipeline tracker (Submitted -> Review -> Verified -> Action).
+      * Municipal/Campus reviewer notes and resolution timestamp.
+
+20. Route: /app/locations
+    - File: src/app/app/locations/page.tsx
+    - Purpose: Citizen's saved favorite monitoring locations.
+    - Content:
+      * List of bookmarks (e.g., Crescent Main Gate, Library, Hostel Zone).
+      * Live AQI badges and quick links to historical charts.
+
+21. Route: /app/alerts
+    - File: src/app/app/alerts/page.tsx
+    - Purpose: Citizen personalized threshold alert rules.
+    - Content:
+      * Sliders to configure custom SMS/Email alert triggers (e.g., AQI > 150).
+      * Notification toggles for morning commute summaries and weekend forecasts.
+
+22. Route: /app/profile
+    - File: src/app/app/profile/page.tsx
+    - Purpose: User account details and community standing.
+    - Content:
+      * Display name, email, avatar, role badge (Citizen Contributor).
+      * Community verification badge and activity statistics.
+
+23. Route: /app/settings
+    - File: src/app/app/settings/page.tsx
+    - Purpose: Application preferences.
+    - Content:
+      * Units configuration (µg/m³ vs ppm), theme toggle, email preferences.
+
+24. Route: /app/chat
+    - File: src/app/app/chat/page.tsx
+    - Purpose: In-app shortcut to the AI Intelligence assistant.
+
+--------------------------------------------------------------------------------
+4.3 AI INTELLIGENCE SUITE (6 ROUTES)
+--------------------------------------------------------------------------------
+
+25. Route: /intelligence
+    - File: src/app/intelligence/page.tsx
+    - Purpose: AI Suite master overview and feature selection hub.
+    - Content:
+      * Feature launch cards: AI Assistant, Pollution Detective, Time Machine,
+        What-If Simulator, Knowledge Base.
+
+26. Route: /intelligence/chat
+    - File: src/app/intelligence/chat/page.tsx
+    - Purpose: Natural language conversational assistant.
+    - Content:
+      * LLM Provider Selector: Groq (Cloud LLaMA-3.3 70B) vs Ollama (Local LLM).
+      * Conversation stream with user questions and formatted markdown answers.
+      * Source citation pills linking to CPCB guidelines and sensor archives.
+      * Evidence cards indicating telemetry confidence scores.
+      * Suggested prompts: "Why is AQI high today?", "Explain scenario 4".
+
+27. Route: /intelligence/pollution-detective
+    - File: src/app/intelligence/pollution-detective/page.tsx
+    - Purpose: Neural anomaly detection and automated source apportionment.
+    - Content:
+      * Recent anomaly detections detected by isolation forest models.
+      * Triangulation inspector showing baseline vs peak pollutant ratios.
+      * Source likelihood radar: Vehicular (84%), Biomass (12%), Industrial (4%).
+
+28. Route: /intelligence/time-machine
+    - File: src/app/intelligence/time-machine/page.tsx
+    - Purpose: Atmospheric dispersion historical playback simulator.
+    - Content:
+      * Scrubber timeline slider covering the previous 48 hours.
+      * Synchronized map view showing shifting pollution intensity.
+      * Micro-meteorological wind vector directional arrows.
+
+29. Route: /intelligence/what-if
+    - File: src/app/intelligence/what-if/page.tsx
+    - Purpose: Policy intervention simulation and scenario projection.
+    - Content:
+      * Policy sliders:
+        - Traffic Reduction (0% to 50%)
+        - Urban Green Canopy Expansion (0% to 30%)
+        - Industrial Stack Curtailment (0% to 40%)
+      * Dual line comparison chart: Business-As-Usual Baseline vs Simulated Policy.
+      * Projected outcome metrics: Net AQI Delta (-38 pts), PM2.5 Delta (-24%).
+      * Scientific limitations disclosure regarding meteorological inversion.
+
+30. Route: /intelligence/knowledge
+    - File: src/app/intelligence/knowledge/page.tsx
+    - Purpose: Semantic RAG retrieval explorer.
+    - Content:
+      * Search bar querying vector embeddings across environmental standards.
+      * Indexed corpus: CPCB 2009 Standards, WHO 2021 Criteria, MoEFCC Acts.
+      * Extracted document snippets with similarity scores.
+
+--------------------------------------------------------------------------------
+4.4 ORGANISATION PORTAL — CRESCENT INSTITUTE (10 ROUTES)
+--------------------------------------------------------------------------------
+
+31. Route: /organisation
+    - File: src/app/organisation/page.tsx
+    - Purpose: Redirect wrapper routing authenticated org admins to /overview.
+
+32. Route: /organisation/overview
+    - File: src/app/organisation/overview/page.tsx
+    - Purpose: Central executive campus command dashboard.
+    - Content:
+      * Campus fleet summary: Total stations, online nodes, network average AQI.
+      * 30-day CPCB regulatory compliance percentage gauge (88.4%).
+      * Active campus environmental exceedance alert counter.
+      * Managed stations quick-status table.
+
+33. Route: /organisation/stations
+    - File: src/app/organisation/stations/page.tsx
+    - Purpose: Hardware fleet management and provisioning.
+    - Content:
+      * Table of campus sensors (Main Gate, Library Quadrangle, Sports Complex).
+      * ESP32 Wi-Fi signal strength (RSSI), battery voltage, and firmware version.
+      * Hardware action buttons: Calibrate Zero, Restart Sensor Node.
+
+34. Route: /organisation/analytics
+    - File: src/app/organisation/analytics/page.tsx
+    - Purpose: Spatio-temporal trends and diurnal analysis.
+    - Content:
+      * Weekly rolling pollutant trends (PM2.5, PM10, NO2).
+      * Peak exposure hour identification (Morning 8-10 AM, Evening 7-9 PM).
+
+35. Route: /organisation/reports
+    - File: src/app/organisation/reports/page.tsx
+    - Purpose: Automated regulatory environmental audit generation.
+    - Content:
+      * Generator for CPCB Form V / Schedule VI Environmental Statement.
+      * Monthly compliance summaries with maximum, minimum, and 98th percentile.
+      * Export options: Download Signed PDF Audit Report, Export Raw CSV.
+
+36. Route: /organisation/incidents
+    - File: src/app/organisation/incidents/page.tsx
+    - Purpose: Campus boundary pollution incident management.
+    - Content:
+      * List of on-campus localized complaints and detected anomalies.
+      * Root cause assignment and campus facilities mitigation workflow.
+
+37. Route: /organisation/team
+    - File: src/app/organisation/team/page.tsx
+    - Purpose: Multi-user role-based access control (RBAC).
+    - Content:
+      * Team directory: Environmental Officers, Campus Facilities, Research PIs.
+      * Permission assignment: Read-Only, Data Analyst, Station Administrator.
+
+38. Route: /organisation/usage
+    - File: src/app/organisation/usage/page.tsx
+    - Purpose: Quota allocation and subscription consumption.
+    - Content:
+      * Usage meters: API Calls (24,500 / 250,000), Active Stations (3 / 5),
+        AI Queries (420 / 1,000), Data Storage (18.4 MB / 500 MB).
+
+39. Route: /organisation/subscription
+    - File: src/app/organisation/subscription/page.tsx
+    - Purpose: Plan management, billing, and GST invoices.
+    - Content:
+      * Current Plan: Professional Intelligence (₹19,999/mo).
+      * Invoice history with downloadable PDF receipts.
+      * Plan upgrade and billing cycle switcher.
+
+40. Route: /organisation/settings
+    - File: src/app/organisation/settings/page.tsx
+    - Purpose: Institutional environmental configurations.
+    - Content:
+      * Webhook alerts configuration (Slack / Microsoft Teams / SMS gateway).
+      * Custom campus boundary coordinates and notification distribution list.
+
+--------------------------------------------------------------------------------
+4.5 PLATFORM ADMIN COMMAND CENTRE (17 ROUTES)
+--------------------------------------------------------------------------------
+
+41. Route: /admin
+    - File: src/app/admin/page.tsx
+    - Purpose: Redirect wrapper routing platform supervisors to /command-centre.
+
+42. Route: /admin/command-centre
+    - File: src/app/admin/command-centre/page.tsx
+    - Purpose: System-wide operations hub.
+    - Content:
+      * Global network health: Total operational nodes across all tenants.
+      * Ingestion throughput: 1,420 packets/min; average latency: 24ms.
+      * Active alerts, incident escalations, and report moderation backlog.
+      * Live WebSocket feed state and scenario controller.
+
+43. Route: /admin/stations
+    - File: src/app/admin/stations/page.tsx
+    - Purpose: Global hardware inventory and provisioning.
+    - Content:
+      * Complete registry of all deployed physical and virtual sensor nodes.
+      * Health diagnostics: packet loss rate, calibration drift, uptime %.
+
+44. Route: /admin/readings
+    - File: src/app/admin/readings/page.tsx
+    - Purpose: Real-time telemetry packet terminal stream.
+    - Content:
+      * Live-scrolling monospace terminal displaying raw JSON sensor packets.
+      * Shows timestamps, device IDs, raw ADC voltages, calculated NAQI.
+
+45. Route: /admin/analytics
+    - File: src/app/admin/analytics/page.tsx
+    - Purpose: Platform-wide telemetry analytics.
+    - Content:
+      * Network-wide rolling average AQI area chart.
+      * Multi-tenant criteria pollutant breakdowns against CPCB standards.
+      * 7-day micro-sensor variance summaries.
+
+46. Route: /admin/hotspots
+    - File: src/app/admin/hotspots/page.tsx
+    - Purpose: Spatial DBSCAN plume cluster management.
+    - Content:
+      * Grid of algorithmic hotspot zones (e.g. Vandalur GST Corridor, Kilambakkam).
+      * Peak cluster AQI, dispersion radius in meters, suspected source type.
+      * Direct link to inspect cluster coordinates in GIS map.
+
+47. Route: /admin/alerts
+    - File: src/app/admin/alerts/page.tsx
+    - Purpose: Platform alert rules and emergency dispatch.
+    - Content:
+      * Global exceedance triggers across all stations.
+      * Filter by severity (Critical, High, Moderate) and status (Active, Resolved).
+      * Emergency dispatch button triggering simulated response teams.
+
+48. Route: /admin/incidents
+    - File: src/app/admin/incidents/page.tsx
+    - Purpose: Incident escalation Kanban board.
+    - Content:
+      * 4-Column Kanban: Detected Anomaly -> Under Investigation -> Confirmed -> Resolved.
+      * Drag/advance workflow with ML confidence scores and baseline comparisons.
+
+49. Route: /admin/reports
+    - File: src/app/admin/reports/page.tsx
+    - Purpose: Citizen report moderation queue.
+    - Content:
+      * Submitted citizen observations awaiting moderation.
+      * Action buttons: Verify Report, Request More Information, Reject Spam.
+
+50. Route: /admin/ai
+    - File: src/app/admin/ai/page.tsx
+    - Purpose: AI provider health and latency diagnostics.
+    - Content:
+      * Groq API status, Ollama local daemon status, token generation speed (tok/sec).
+      * Embedding vector cache hit-rate and RAG latency metrics.
+
+51. Route: /admin/models
+    - File: src/app/admin/models/page.tsx
+    - Purpose: Machine learning model registry.
+    - Content:
+      * Deployed models: AQI-LSTM-v2 (Forecasting), Source-Apportionment-RF,
+        Anomaly-IsolForest, Prophet-Seasonal, RAG-Embeddings.
+      * Version, accuracy %, last trained date, and asynchronous retrain trigger.
+
+52. Route: /admin/organisations
+    - File: src/app/admin/organisations/page.tsx
+    - Purpose: Multi-tenant accounts and provisioning.
+    - Content:
+      * Directory of enterprise tenants (Crescent Institute, CMDA, TNPCB, Hexaware).
+      * Plan tier badges, assigned sensor quotas, user counts, and status controls.
+
+53. Route: /admin/users
+    - File: src/app/admin/users/page.tsx
+    - Purpose: Global identity and RBAC management.
+    - Content:
+      * User directory across Citizen, Org Admin, and Platform Admin roles.
+      * Role elevation controls, account disabling, and audit of last login.
+
+54. Route: /admin/plans
+    - File: src/app/admin/plans/page.tsx
+    - Purpose: Commercial pricing tier and quota configuration.
+    - Content:
+      * Configurator for Starter, Professional, and Enterprise plans.
+      * Quota limits editor: Max stations, monthly API limits, storage retention.
+
+55. Route: /admin/subscriptions
+    - File: src/app/admin/subscriptions/page.tsx
+    - Purpose: Billing and subscription lifecycle.
+    - Content:
+      * Monthly Recurring Revenue (MRR) counter in INR.
+      * Subscription status table, next renewal date, and invoice logs.
+
+56. Route: /admin/usage
+    - File: src/app/admin/usage/page.tsx
+    - Purpose: Infrastructure throughput and capacity monitoring.
+    - Content:
+      * Daily API request volume bar chart (198,000 req/day).
+      * Top consumer organizations share of network load.
+      * Tenant capacity utilization meters.
+
+57. Route: /admin/audit-logs
+    - File: src/app/admin/audit-logs/page.tsx
+    - Purpose: Immutable security audit trail.
+    - Content:
+      * Terminal view of all system actions (AUTH, WRITE, READ, DELETE).
+      * Actor, IP address, HTTP status code (200, 403, 500), and action details.
+      * CSV audit trail export functionality.
+
+58. Route: /admin/settings
+    - File: src/app/admin/settings/page.tsx
+    - Purpose: Global platform configuration.
+    - Content:
+      * Indian NAQI parameter locking.
+      * Data retention compaction rules (30 to 365 days).
+      * Mandatory MFA enforcement for administrator accounts.
+
+--------------------------------------------------------------------------------
+4.6 AUTHENTICATION & PUBLIC UTILITIES (2 ROUTES)
+--------------------------------------------------------------------------------
+
+59. Route: /login
+    - File: src/app/login/page.tsx
+    - Purpose: User authentication.
+    - Content:
+      * Email and password sign-in form with Firebase Auth client SDK.
+      * 4 Instant Demo Persona Switcher buttons:
+        1. Public Citizen
+        2. Crescent Campus Org Admin
+        3. Municipal Authority Operator
+        4. Platform Super Administrator
+
+60. Route: /register
+    - File: src/app/register/page.tsx
+    - Purpose: New account creation.
+    - Content:
+      * Registration form with role selection and institutional email verification.
+
+61. Route: /_not-found
+    - File: src/app/not-found.tsx (Next.js default)
+    - Purpose: Graceful 404 handler with return home shortcuts.
+
+
+================================================================================
+5. SYSTEM INTERACTION FLOWS & USER JOURNEYS
+================================================================================
+
+--------------------------------------------------------------------------------
+5.1 DEMONSTRATION & HARDWARE SCENARIO SWITCHING FLOW
+--------------------------------------------------------------------------------
+
+[User clicks keypad key (1-9) on UI or presses ESP32 Hardware Keypad]
+       │
+       ▼
+[LiveWebSocketManager.triggerScenario(scenarioKey)]
+       │
+       ├─► Broadcasts WebSocket JSON frame:
+       │   {"action": "trigger_scenario", "device_id": "crescent-vandalur-01", "scenario_key": "..."}
+       │
+       ├─► Updates local Mock Adapter fallback state (offline resilience)
+       │
+       ▼
+[WebSocket Broadcast Listener notifies all active subscribers]
+       │
+       ├─► Public Dashboard updates AQI number, Category Badge, and Health Advisory
+       ├─► Leaflet Map pin dynamically transitions color (e.g., Green -> Red)
+       ├─► 24h Trend Chart appends new spike reading
+       └─► DataSourceBadge updates to "SIMULATED / DEMONSTRATION"
+
+
+--------------------------------------------------------------------------------
+5.2 CITIZEN POLLUTION REPORTING & MODERATION PIPELINE
+--------------------------------------------------------------------------------
+
+[Citizen navigates to /app/reports/new]
+       │
+       ▼
+[Fills 3-step Wizard: Selects category (e.g. Waste Burning), Captures GPS, Adds photo]
+       │
+       ▼
+[POST /api/v1/reports -> Report created with status: "submitted"]
+       │
+       ▼
+[Citizen views /app/reports/[id] -> Timeline shows Step 1 "Submitted" active]
+       │
+       ▼
+[Platform Admin / Moderator opens /admin/reports]
+       │
+       ├─► Inspects coordinates, photo evidence, and nearby sensor correlation
+       ├─► Clicks "Verify Report"
+       │
+       ▼
+[Report status updates to "verified"]
+       │
+       ├─► Incident logged on /incidents public log
+       └─► Citizen report page updates to Step 3 "Verified by Environmental Desk"
+
+
+--------------------------------------------------------------------------------
+5.3 REAL-TIME WEBSOCKET TELEMETRY STREAMING FLOW
+--------------------------------------------------------------------------------
+
+[Browser loads any dashboard page]
+       │
+       ▼
+[useLiveWebSocket hook initializes LiveWebSocketManager singleton]
+       │
+       ├─► Attempts connection to ws://localhost:8000/api/v1/ws/live
+       │
+       ├─── IF CONNECTED:
+       │    ├─ Sends: {"action": "subscribe", "device_id": "crescent-vandalur-01"}
+       │    ├─ Receives periodic "reading_update" frames every 3 seconds
+       │    └─ Indicator displays green "LIVE WEBSOCKET STREAM"
+       │
+       └─── IF BACKEND DISCONNECTED / FALLBACK:
+            ├─ Indicator displays amber "DEMO / MOCK STREAM"
+            ├─ Local generator computes realistic telemetry matching active scenario
+            └─ Automatic exponential backoff retries in background (2s, 4s, 8s, 16s)
+
+
+--------------------------------------------------------------------------------
+5.4 AI CHAT, RAG RETRIEVAL & EVIDENCE INJECTION FLOW
+--------------------------------------------------------------------------------
+
+[User enters prompt in /intelligence/chat: "Why is Crescent AQI high right now?"]
+       │
+       ▼
+[Selects Provider: Groq Cloud (LLaMA-3.3 70B) or Ollama Local]
+       │
+       ▼
+[POST /api/v1/ai/chat with telemetry context: { station_id: "crescent-vandalur-01" }]
+       │
+       ├─► RAG vector database retrieves relevant CPCB ambient standards
+       ├─► Prompt augmented with current sensor sub-indices (PM2.5, NO2, Wind)
+       │
+       ▼
+[FastAPI LLM Inference generates response]
+       │
+       ▼
+[Frontend renders rich response]:
+       ├─ Formatted textual diagnosis
+       ├─ Source Citation Pills (e.g. "CPCB Ambient Air Quality Standards 2009")
+       └─ Telemetry Evidence Badges (e.g. "PM2.5 Exceedance: 112 µg/m³ - 94% confidence")
+
+
+--------------------------------------------------------------------------------
+5.5 REGULATORY COMPLIANCE AUDIT EXPORT FLOW (CPCB FORM V)
+--------------------------------------------------------------------------------
+
+[Campus Environmental Officer opens /organisation/reports]
+       │
+       ▼
+[Selects Reporting Period: e.g. "October 2026" and Standard: "CPCB Schedule VI"]
+       │
+       ▼
+[Frontend aggregates monthly sensor telemetry]:
+       ├─ Calculates 24h arithmetic means
+       ├─ Identifies 98th percentile peak concentrations
+       └─ Calculates total non-compliance hours
+       │
+       ▼
+[Officer clicks "Download CPCB Form V PDF"]:
+       ├─ Exports formatted official environmental statement ready for submission
+       └─ Action logged in /admin/audit-logs for ISO 27001 data audit integrity
+
+
+--------------------------------------------------------------------------------
+5.6 POLICY WHAT-IF SIMULATION FLOW
+--------------------------------------------------------------------------------
+
+[Urban Planner opens /intelligence/what-if]
+       │
+       ▼
+[Adjusts Intervention Sliders]:
+       ├─ Traffic Curtailment: +30%
+       ├─ Green Canopy Deposition: +15%
+       └─ Industrial Stack Curtailment: +20%
+       │
+       ▼
+[Neural surrogate model computes linear/non-linear dispersion response]
+       │
+       ▼
+[WhatIfComparisonChart renders dual curves]:
+       ├─ Curve 1 (Red dashed): Baseline Business-As-Usual (Peak AQI 190)
+       └─ Curve 2 (Green solid): Simulated Policy Trajectory (Peak AQI 112)
+       │
+       ▼
+[Displays estimated human exposure reduction and scientific boundary limitations]
+
+
+================================================================================
+6. DATA INTEGRITY, LABELS & SCIENTIFIC TRANSPARENCY
+================================================================================
+
+To guarantee scientific and legal credibility, STREETAIR strictly adheres to
+data attribution principles:
+
+1. SOURCE DISCLOSURE BADGES:
+   Every telemetry reading displays an immutable DataSourceBadge:
+   - "HARDWARE": Raw measurement from physical ESP32 optical / chemical sensor.
+   - "SIMULATED": Generated by scenario emulation engine for demonstration.
+   - "DEMONSTRATION": Synthetic calibration packet for UI evaluation.
+
+2. STATUS BADGES:
+   - "LIVE": Packet received within the last 30 seconds.
+   - "STALE": No packet received for > 60 seconds; connection under recovery.
+   - "HISTORICAL": Stored database rollup point.
+   - "FORECAST": Future projection generated by LSTM / Prophet models.
+
+3. SPATIAL INTERPOLATION DISCLAIMERS:
+   All spatial heatmaps and route navigation calculations carry mandatory notices:
+   "Estimated spatial interpolation based on discrete sensor nodes. Atmospheric
+   mixing and micro-topography may cause localized variances."
+
+
+================================================================================
+7. TECHNOLOGY STACK & DESIGN SYSTEM SPECIFICATIONS
+================================================================================
+
+FRONTEND STACK:
+- Framework: Next.js 14.2.35 (React 18, App Router)
+- Language: TypeScript 5 (Strict Mode enabled, zero any types)
+- Styling: Tailwind CSS 3.4 with custom environmental semantic tokens
+- Data Fetching: TanStack React Query v5 + Native WebSocket abstraction
+- Geospatial Maps: Leaflet 1.9 + OpenStreetMap (SSR-safe dynamic import)
+- Visualizations: Recharts 2.12 (AreaChart, BarChart, LineChart)
+- UI Icons: Lucide React
+- Authentication: Firebase Authentication Client SDK
+- Build Engine: PostCSS, Webpack, Autoprefixer
+
+COLOR SYSTEM TOKENS:
+- Good Air Quality: Emerald (#10B981 / bg-emerald-500)
+- Satisfactory / Moderate: Amber (#F59E0B / bg-amber-500)
+- Poor / Moderately Polluted: Orange (#F97316 / bg-orange-500)
+- Unhealthy: Red (#EF4444 / bg-red-500)
+- Very Unhealthy: Purple (#8B5CF6 / bg-purple-600)
+- Severe / Hazardous: Maroon / Rose (#881337 / #E11D48)
+
+================================================================================
+END OF SPECIFICATION MANUAL
+================================================================================
