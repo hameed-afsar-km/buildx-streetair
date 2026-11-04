@@ -1,3 +1,34 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# testing
+coverage/
+
+# next.js
+.next/
+out/
+
+# production
+build/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 # Python
 __pycache__/
 *.py[cod]
@@ -42,3 +73,24 @@ htmlcov/
 .idea/
 *.swp
 *.swo
+# Virtual Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Testing & Caches
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Environment Variables & Secrets
+.env
+*.local
+
+# Vector stores & local data artifacts
+ai/data/vectorstore/
+ai/data/test_vectorstore/
+*.log
