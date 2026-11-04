@@ -1,3 +1,5 @@
+@import "leaflet/dist/leaflet.css";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,8 +51,6 @@ body {
 }
 
 /* Leaflet map styles */
-@import "leaflet/dist/leaflet.css";
-
 .leaflet-container {
   width: 100%;
   height: 100%;
@@ -97,4 +97,36 @@ body {
 }
 .live-pulse {
   animation: ring-pulse 2s infinite;
+}
+
+/* Vibrant continuous gradient flow animation for the AIR text */
+@keyframes gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-air {
+  background: linear-gradient(
+    270deg,
+    #059669 0%,
+    #10b981 20%,
+    #06b6d4 40%,
+    #14b8a6 60%,
+    #22c55e 80%,
+    #059669 100%
+  ) !important;
+  background-size: 300% 300% !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  animation: gradient-flow 3.5s ease infinite !important;
+  display: inline-block !important;
 }

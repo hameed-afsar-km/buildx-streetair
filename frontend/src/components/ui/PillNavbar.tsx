@@ -23,7 +23,6 @@ export const PillNavbar: React.FC = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Lock body scroll when mobile menu open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -33,7 +32,6 @@ export const PillNavbar: React.FC = () => {
     <>
       {Overlay}
 
-      {/* ── Desktop Pill ─────────────────────────────────────────────── */}
       <div className="fixed top-5 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
         <motion.nav
           initial={{ y: -24, opacity: 0 }}
@@ -45,140 +43,103 @@ export const PillNavbar: React.FC = () => {
           transition={{ type: "spring", stiffness: 260, damping: 28 }}
           className="pointer-events-auto"
         >
-          {/* Glass pill container */}
+          {/* Pill */}
           <div
             className={[
               "relative flex items-center justify-between gap-4 px-5 py-2.5 rounded-full",
               "border transition-all duration-500",
               scrolled
-                ? "border-gold-500/20 bg-emerald-950/92 backdrop-blur-2xl shadow-[0_8px_32px_rgba(6,26,22,0.72)]"
-                : "border-emerald-800/40 bg-emerald-950/70 backdrop-blur-xl shadow-[0_4px_24px_rgba(6,26,22,0.5)]",
+                ? "border-slate-200 bg-white/95 shadow-[0_4px_24px_rgba(0,0,0,0.08)] backdrop-blur-xl"
+                : "border-slate-200/70 bg-white/80 shadow-[0_2px_12px_rgba(0,0,0,0.06)] backdrop-blur-lg",
             ].join(" ")}
           >
-            {/* ── Logo ───── */}
-            <Link
-              href="/"
-              className="group flex items-center gap-2 shrink-0 select-none"
-            >
-              {/* Animated dot */}
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold-500 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-gold-500" />
+            {/* Logo */}
+            <Link href="/" className="group flex items-center gap-2 shrink-0 select-none">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-50" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
               </span>
-              <span
-                className={[
-                  "font-sans font-semibold text-sm tracking-[0.18em] uppercase",
-                  "text-cream-100 group-hover:text-gold-400 transition-colors duration-200",
-                ].join(" ")}
-              >
+              <span className="font-sans font-semibold text-sm tracking-[0.16em] uppercase text-slate-800 group-hover:text-emerald-700 transition-colors duration-200">
                 STREETAIR
               </span>
             </Link>
 
-            {/* ── Nav Links (desktop) ───── */}
+            {/* Nav links */}
             <div className="hidden sm:flex items-center gap-1">
               {NAV_LINKS.map(({ label, href }) => (
                 <Link
                   key={label}
                   href={href}
-                  className={[
-                    "relative px-3.5 py-1.5 rounded-full",
-                    "font-sans text-[11.5px] font-medium tracking-wide",
-                    "text-cream-200/60 hover:text-cream-100",
-                    "hover:bg-emerald-800/40 transition-all duration-200",
-                  ].join(" ")}
+                  className="px-3.5 py-1.5 rounded-full font-sans text-[12px] font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200"
                 >
                   {label}
                 </Link>
               ))}
             </div>
 
-            {/* ── CTAs ───── */}
+            {/* CTAs */}
             <div className="hidden sm:flex items-center gap-2 shrink-0">
               <button
                 onClick={() => navigateWithReveal("/admin", "Admin Command Console")}
-                className={[
-                  "group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full",
-                  "font-sans text-[11.5px] font-medium tracking-wide",
-                  "text-cream-200/55 border border-emerald-700/50",
-                  "hover:text-cream-100 hover:border-gold-500/35 hover:bg-emerald-800/30",
-                  "transition-all duration-200 cursor-pointer",
-                ].join(" ")}
+                className="group inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full font-sans text-[12px] font-medium text-slate-500 border border-slate-200 hover:text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition-all duration-200 cursor-pointer"
               >
-                <ShieldCheck className="w-3.5 h-3.5 opacity-70 group-hover:opacity-100" />
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 opacity-80" />
                 Admin
               </button>
 
               <button
                 onClick={() => navigateWithReveal("/dashboard", "Public Live Dashboard")}
-                className={[
-                  "inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full",
-                  "font-sans text-[11.5px] font-semibold tracking-wide",
-                  "bg-gold-500 text-emerald-950",
-                  "hover:bg-gold-400 active:scale-95",
-                  "shadow-[0_0_16px_rgba(200,169,106,0.25)]",
-                  "hover:shadow-[0_0_22px_rgba(200,169,106,0.4)]",
-                  "transition-all duration-200 cursor-pointer",
-                ].join(" ")}
+                className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full font-sans text-[12px] font-semibold bg-emerald-600 text-white hover:bg-emerald-700 active:scale-95 shadow-sm shadow-emerald-200 hover:shadow-emerald-300 transition-all duration-200 cursor-pointer"
               >
                 Live
                 <ArrowUpRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            {/* ── Hamburger (mobile) ───── */}
+            {/* Hamburger */}
             <button
               onClick={() => setMobileOpen((p) => !p)}
-              className="sm:hidden ml-auto text-cream-200/70 hover:text-cream-100 transition-colors p-1"
+              className="sm:hidden ml-auto text-slate-500 hover:text-slate-800 transition-colors p-1"
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
 
-          {/* ── Mobile Dropdown ───── */}
+          {/* Mobile dropdown */}
           <AnimatePresence>
             {mobileOpen && (
               <motion.div
-                initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                initial={{ opacity: 0, y: -6, scale: 0.98 }}
                 animate={{ opacity: 1, y: 4, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className={[
-                  "mt-2 mx-1 rounded-2xl overflow-hidden",
-                  "border border-emerald-800/50 bg-emerald-950/95 backdrop-blur-2xl",
-                  "shadow-[0_12px_40px_rgba(6,26,22,0.8)]",
-                ].join(" ")}
+                exit={{ opacity: 0, y: -6, scale: 0.98 }}
+                transition={{ duration: 0.18, ease: "easeOut" }}
+                className="mt-1 mx-1 rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-[0_8px_32px_rgba(0,0,0,0.1)]"
               >
-                <div className="flex flex-col px-4 py-4 gap-1">
+                <div className="flex flex-col px-3 py-3 gap-0.5">
                   {NAV_LINKS.map(({ label, href }) => (
                     <Link
                       key={label}
                       href={href}
                       onClick={() => setMobileOpen(false)}
-                      className={[
-                        "px-3 py-2.5 rounded-xl",
-                        "font-sans text-sm font-medium tracking-wide",
-                        "text-cream-200/70 hover:text-cream-100 hover:bg-emerald-800/40",
-                        "transition-all duration-150",
-                      ].join(" ")}
+                      className="px-3 py-2.5 rounded-xl font-sans text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all duration-150"
                     >
                       {label}
                     </Link>
                   ))}
 
-                  <div className="mt-3 pt-3 border-t border-emerald-800/40 flex flex-col gap-2">
+                  <div className="mt-2 pt-2 border-t border-slate-100 flex flex-col gap-2">
                     <button
-                      onClick={() => { setMobileOpen(false); navigateWithReveal("/dashboard", "Public Live Dashboard"); }}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gold-500 text-emerald-950 font-sans text-sm font-semibold tracking-wide cursor-pointer"
+                      onClick={() => { setMobileOpen(false); navigateWithReveal("/dashboard", "Public Dashboard"); }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-emerald-600 text-white font-sans text-sm font-semibold cursor-pointer hover:bg-emerald-700 transition-colors"
                     >
                       Public Live <ArrowUpRight className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => { setMobileOpen(false); navigateWithReveal("/admin", "Admin Command Console"); }}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-emerald-700/50 text-cream-200/70 font-sans text-sm font-medium tracking-wide cursor-pointer hover:border-gold-500/30 hover:text-cream-100 transition-all"
+                      onClick={() => { setMobileOpen(false); navigateWithReveal("/admin", "Admin Console"); }}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-sans text-sm font-medium cursor-pointer hover:bg-slate-50 transition-all"
                     >
-                      <ShieldCheck className="w-4 h-4" /> Admin
+                      <ShieldCheck className="w-4 h-4 text-emerald-600" /> Admin
                     </button>
                   </div>
                 </div>

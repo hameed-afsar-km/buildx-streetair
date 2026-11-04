@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { sendAiChatMessage } from "@/lib/api/endpoints";
 import { AiProvider, ChatMessageItem } from "@/lib/types";
 import { SourceCitation } from "@/components/ui/SourceCitation";
+import { MarkdownRenderer } from "@/components/ui/MarkdownRenderer";
 import {
   Bot,
   Send,
@@ -211,9 +212,13 @@ Ask me anything about current anomalies, pollution spikes, historical comparison
                   </div>
                 )}
 
-                <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap font-sans">
-                  {m.content}
-                </div>
+                {isUser ? (
+                  <div className="whitespace-pre-wrap font-sans text-sm">
+                    {m.content}
+                  </div>
+                ) : (
+                  <MarkdownRenderer content={m.content} />
+                )}
 
                 {/* Citations & Telemetry Evidence */}
                 {!isUser && (

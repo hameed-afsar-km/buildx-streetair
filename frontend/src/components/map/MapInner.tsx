@@ -14,6 +14,7 @@ interface MapInnerProps {
   onSelectStation?: (station: MonitoringStation) => void;
   center?: [number, number];
   zoom?: number;
+  heatmapIntensity?: number;
 }
 
 export function MapInner({
@@ -22,6 +23,7 @@ export function MapInner({
   onSelectStation,
   center = [12.8797, 80.0833], // B.S. Abdur Rahman Crescent Institute, Vandalur
   zoom = 13,
+  heatmapIntensity,
 }: MapInnerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -85,11 +87,12 @@ export function MapInner({
       // Estimated Heatmap Interpolation Layer (Gaussian radius)
       if (showHeatmap) {
         // Radius based on AQI intensity
-        const radius = Math.min(2200, 800 + st.aqi * 4);
+        const displayedAqi = st.id === selectedStationId && heatmapIntensity !== undefined ? heatmapIntensity : st.aqi;
+        const radius = Math.min(2200, 800 + displayedAqi * 4);
         const circle = L.circle([st.coordinates.lat, st.coordinates.lng], {
           color: "transparent",
-          fillColor: color,
-          fillOpacity: 0.28,
+          fillColor: getAQIColor(displayedAqi),
+          fillOpacity: 0.3,
           radius,
         });
         circle.bindTooltip(
@@ -128,7 +131,7 @@ export function MapInner({
         markersLayerRef.current?.addLayer(marker);
       }
     });
-  }, [stations, showHeatmap, showStations, onSelectStation]);
+  }, [stations, showHeatmap, showStations, onSelectStation, selectedStationId, heatmapIntensity]);
 
   const handleResetView = () => {
     mapInstanceRef.current?.setView(center, zoom, { animate: true });

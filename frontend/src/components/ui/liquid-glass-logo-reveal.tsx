@@ -1061,26 +1061,26 @@ function startEngine(
   }
 }
 
-// STREETAIR Text Typography Vector SVG Mark
+// STREETAIR Text Typography Vector SVG Mark (Modern Geometric Sans)
 export const STREETAIR_SVG_LOGO = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 240" width="900" height="240">
-  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="Cinzel, Georgia, serif" font-weight="800" font-size="124" letter-spacing="18" fill="#ffffff">
+  <text x="50%" y="54%" text-anchor="middle" dominant-baseline="middle" font-family="'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif" font-weight="800" font-size="116" letter-spacing="14" fill="#0f172a">
     STREETAIR
   </text>
 </svg>`
 
 export type GlassRevealStreetAirProps = Omit<GlassIconRevealProps, "logo">
 
-export function GlassRevealStreetAir({ tuning, ...props }: GlassRevealStreetAirProps) {
+export function GlassRevealStreetAir({ tuning, look = "light", background = "#ffffff", plateColor = "#f8fafc", logoColor = "#0f172a", ...props }: GlassRevealStreetAirProps) {
   return (
     <GlassIconReveal
       logo={STREETAIR_SVG_LOGO}
       label="STREETAIR"
-      look="dark"
-      background="#061A16"
-      plateColor="#0F3D34"
-      logoColor="#C8A96A"
-      logoScale={0.75}
-      finalScale={0.88}
+      look={look}
+      background={background}
+      plateColor={plateColor}
+      logoColor={logoColor}
+      logoScale={0.78}
+      finalScale={0.90}
       {...props}
       tuning={{
         startZoom: 2.1,

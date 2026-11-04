@@ -7,12 +7,11 @@ import { GlassRevealStreetAir } from "@/components/ui/liquid-glass-logo-reveal";
 
 interface RouteTransitionOverlayProps {
   isTransitioning: boolean;
-  destinationTitle: string;
+  destinationHref: string;
 }
 
 export function RouteTransitionOverlay({
   isTransitioning,
-  destinationTitle,
 }: RouteTransitionOverlayProps) {
   if (!isTransitioning) return null;
 
@@ -22,37 +21,37 @@ export function RouteTransitionOverlay({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.35 }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-emerald-950/95 backdrop-blur-2xl"
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        className="fixed inset-0 z-[999] flex flex-col items-center justify-center bg-white"
       >
+        {/* Pure STREETAIR Liquid Glass Logo Reveal in Light Theme */}
         <div className="relative w-72 h-72 sm:w-80 sm:h-80 flex items-center justify-center">
-          {/* Liquid Glass Reveal Animation with STREETAIR Logo */}
           <GlassRevealStreetAir
-            className="w-full h-full rounded-3xl shadow-2xl border border-gold-500/20"
-            background="#061A16"
-            plateColor="#0F3D34"
-            logoColor="#C8A96A"
-            speed={1.4}
-            hold={0.5}
+            className="w-full h-full rounded-3xl"
+            look="light"
+            background="#ffffff"
+            plateColor="#f8fafc"
+            logoColor="#0f172a"
+            speed={1.5}
+            hold={0.4}
             loop={false}
           />
         </div>
 
+        {/* Small subtle tagline below */}
         <motion.div
-          initial={{ opacity: 0, y: 15 }}
+          initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="text-center mt-6"
+          transition={{ delay: 0.35, duration: 0.4 }}
+          className="flex items-center gap-2 mt-4"
         >
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping" />
-            <span className="text-[11px] font-mono tracking-[0.25em] text-gold-500 uppercase">
-              Connecting
-            </span>
-          </div>
-          <h3 className="font-serif text-lg tracking-wider text-cream-100">
-            {destinationTitle}
-          </h3>
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-60" />
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+          </span>
+          <span className="text-xs font-medium tracking-widest text-slate-400 uppercase">
+            Scanning environmental data...
+          </span>
         </motion.div>
       </motion.div>
     </AnimatePresence>
@@ -65,12 +64,12 @@ export function RouteTransitionOverlay({
 export function useDashboardTransition() {
   const router = useRouter();
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [targetTitle, setTargetTitle] = useState("");
+  const [targetHref, setTargetHref] = useState("");
 
-  const navigateWithReveal = (href: string, title: string) => {
-    setTargetTitle(title);
+  const navigateWithReveal = (href: string, _title?: string) => {
+    setTargetHref(href);
     setIsTransitioning(true);
-    // Allow the liquid glass mark to form and reveal before pushing the route
+    // Allow the liquid glass reveal animation to play smoothly
     setTimeout(() => {
       router.push(href);
     }, 1500);
@@ -78,14 +77,12 @@ export function useDashboardTransition() {
 
   return {
     isTransitioning,
-    targetTitle,
     navigateWithReveal,
     Overlay: (
       <RouteTransitionOverlay
         isTransitioning={isTransitioning}
-        destinationTitle={targetTitle}
+        destinationHref={targetHref}
       />
     ),
   };
 }
-

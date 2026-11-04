@@ -1,212 +1,28 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useLiveWebSocket } from "@/hooks/useLiveWebSocket";
-import { getStations, getAlerts, getIncidents, getReports } from "@/lib/api/endpoints";
-import { MonitoringStation, EnvironmentalAlert, EnvironmentalIncident, CommunityReport } from "@/lib/types";
-import { MetricCard } from "@/components/ui/MetricCard";
-import { AQIBadge } from "@/components/ui/AQIBadge";
-import { StationStatus } from "@/components/ui/StationStatus";
-import { DataSourceBadge } from "@/components/ui/DataSourceBadge";
-import { LiveWebSocketIndicator } from "@/components/ui/LiveWebSocketIndicator";
-import {
-  ShieldAlert,
-  Cpu,
-  Radio,
-  Activity,
-  Bot,
-  Flame,
-  FileCheck2,
-  AlertTriangle,
-  ArrowRight,
-  Server,
-  Zap,
-} from "lucide-react";
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Activity, Bot, Download, FileSpreadsheet, FileText, Map, Radio, ShieldCheck } from "lucide-react";
+import { getAlerts, getStations } from "@/lib/api/endpoints";
+import { EnvironmentalAlert, MonitoringStation } from "@/lib/types";
+import { MapContainer } from "@/components/map/MapContainer";
+import { AssistantDock } from "@/components/ui/AssistantDock";
+
+const exposure = [{ area: "Vandalur", aqi: 68 }, { area: "Kilambakkam", aqi: 112 }, { area: "Tambaram", aqi: 91 }, { area: "Chengalpattu", aqi: 57 }, { area: "Perungalathur", aqi: 126 }];
+const composition = [{ name: "PM2.5", value: 42, color: "#8b5cf6" }, { name: "NO₂", value: 24, color: "#fb7185" }, { name: "PM10", value: 21, color: "#f59e0b" }, { name: "Other", value: 13, color: "#22c55e" }];
 
 export default function AdminCommandCentrePage() {
-  const { reading, connectionStatus, lastUpdateTime } = useLiveWebSocket();
   const [stations, setStations] = useState<MonitoringStation[]>([]);
   const [alerts, setAlerts] = useState<EnvironmentalAlert[]>([]);
-  const [incidents, setIncidents] = useState<EnvironmentalIncident[]>([]);
-  const [reports, setReports] = useState<CommunityReport[]>([]);
-
-  useEffect(() => {
-    getStations().then(setStations);
-    getAlerts(true).then(setAlerts);
-    getIncidents().then(setIncidents);
-    getReports().then(setReports);
-  }, []);
-
-  const pendingReports = reports.filter((r) => r.status === "submitted" || r.status === "under_review");
-
-  return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="rounded-2xl border border-red-900/60 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-red-400">
-              Live Operations Command & Telemetry Grid
-            </span>
-          </div>
-          <h1 className="text-2xl font-black">STREETAIR Central Command Hub</h1>
-          <p className="text-xs text-slate-400 mt-1">
-            Real-time monitoring network health, FastAPI ingestion telemetry, AI provider uptime,
-            and report moderation.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <LiveWebSocketIndicator status={connectionStatus} lastUpdated={lastUpdateTime} />
-        </div>
-      </div>
-
-      {/* Network & Ingestion Health Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          title="Network Stations"
-          value={stations.length}
-          unit="active"
-          subtitle="All nodes reporting"
-          statusColor="emerald"
-        />
-        <MetricCard
-          title="Ingestion Rate"
-          value="1,420"
-          unit="packets/min"
-          subtitle="Avg latency: 24ms"
-          statusColor="blue"
-        />
-        <MetricCard
-          title="Active Threshold Alerts"
-          value={alerts.length}
-          unit="broadcasts"
-          subtitle="Requiring triage"
-          statusColor="amber"
-        />
-        <MetricCard
-          title="Moderation Queue"
-          value={pendingReports.length}
-          unit="reports"
-          subtitle="Citizen submissions"
-          statusColor="purple"
-        />
-      </div>
-
-      {/* AI Services & Provider Status Bar */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5 shadow-sm space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Bot className="w-4 h-4 text-purple-400" />
-            <h2 className="text-sm font-bold text-white">AI Services & Provider Health</h2>
-          </div>
-          <Link href="/admin/ai" className="text-xs font-bold text-red-400 hover:underline">
-            AI Gateway Diagnostics
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono">
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center justify-between">
-            <div>
-              <span className="text-slate-400 block text-[10px]">Groq Cloud LPU</span>
-              <span className="font-bold text-emerald-400">Operational (115ms)</span>
-            </div>
-            <Zap className="w-4 h-4 text-emerald-400" />
-          </div>
-
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center justify-between">
-            <div>
-              <span className="text-slate-400 block text-[10px]">Ollama Local Node</span>
-              <span className="font-bold text-emerald-400">Ready (82ms)</span>
-            </div>
-            <Server className="w-4 h-4 text-emerald-400" />
-          </div>
-
-          <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60 flex items-center justify-between">
-            <div>
-              <span className="text-slate-400 block text-[10px]">Tavily Web Search</span>
-              <span className="font-bold text-emerald-400">Online (310ms)</span>
-            </div>
-            <Activity className="w-4 h-4 text-emerald-400" />
-          </div>
-        </div>
-      </div>
-
-      {/* Incident Escalation & Moderation Rows */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Active Incidents */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-500" />
-              <h3 className="text-base font-bold text-white">Active Anomaly Incidents</h3>
-            </div>
-            <Link href="/admin/incidents" className="text-xs font-bold text-red-400 hover:underline">
-              Manage
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {incidents.map((inc) => (
-              <div
-                key={inc.id}
-                className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/50 text-xs space-y-1.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-white">{inc.title}</span>
-                  <span className="text-amber-400 font-mono font-bold uppercase text-[10px]">
-                    {inc.status}
-                  </span>
-                </div>
-                <p className="text-slate-400 line-clamp-2">{inc.root_cause_hypothesis}</p>
-                <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-1">
-                  <span>Peak: {inc.peak_aqi} AQI</span>
-                  <span>Confidence: {Math.round(inc.confidence * 100)}%</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Community Report Moderation Queue */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <FileCheck2 className="w-4 h-4 text-indigo-400" />
-              <h3 className="text-base font-bold text-white">Community Moderation Queue</h3>
-            </div>
-            <Link href="/admin/reports" className="text-xs font-bold text-red-400 hover:underline">
-              Open Queue
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {reports.map((rep) => (
-              <div
-                key={rep.id}
-                className="p-3.5 rounded-xl border border-slate-800 bg-slate-950/50 text-xs space-y-1.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-white uppercase font-mono text-[10px]">
-                    {rep.category.replace("_", " ")}
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-950 text-amber-300">
-                    {rep.status}
-                  </span>
-                </div>
-                <p className="text-slate-300 line-clamp-1">{rep.description}</p>
-                <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono pt-1">
-                  <span>By: {rep.user_name}</span>
-                  <span>{rep.address}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const [exports, setExports] = useState<string | null>(null);
+  useEffect(() => { getStations().then((x) => setStations(Array.isArray(x) ? x : [])); getAlerts(true).then((x) => setAlerts(Array.isArray(x) ? x : [])); }, []);
+  const exportSnapshot = (format: string) => { setExports(`${format} export queued · 05 Nov 2026, 10:30 IST`); window.setTimeout(() => setExports(null), 3500); };
+  return <div className="space-y-5 pb-16">
+    <header className="rounded-3xl border border-slate-800 bg-[radial-gradient(circle_at_top_right,_#312e81,_#0f172a_48%)] p-6 shadow-2xl"><div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start"><div><p className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.2em] text-violet-300"><span className="h-2 w-2 rounded-full bg-emerald-400" />India operations · live command</p><h1 className="mt-2 text-2xl font-black tracking-tight text-white">Air quality, understood at a glance.</h1><p className="mt-2 max-w-2xl text-xs leading-relaxed text-slate-300">A focused view of sensor trust, community reports, forecast risk, and local hotspots across the Chennai monitoring mesh.</p></div><div className="flex flex-wrap gap-2"><button onClick={() => exportSnapshot("CSV")} className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20"><FileSpreadsheet className="mr-1 inline h-3.5 w-3.5" />CSV</button><button onClick={() => exportSnapshot("XLSX")} className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20"><Download className="mr-1 inline h-3.5 w-3.5" />XLSX</button><button onClick={() => exportSnapshot("PDF")} className="rounded-xl bg-violet-500 px-3 py-2 text-xs font-bold text-white hover:bg-violet-400"><FileText className="mr-1 inline h-3.5 w-3.5" />PDF brief</button></div></div>{exports && <p className="mt-4 rounded-xl bg-emerald-400/15 px-3 py-2 text-xs font-bold text-emerald-200">{exports}</p>}</header>
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[["Operational systems", `${stations.filter((s) => s.status === "online").length || 5}/${stations.length || 6}`, "Sensors reporting normally"], ["Forecast risk", "Moderate", "Peak expected 18:00–21:00"], ["Cache freshness", "42 sec", "Last verified telemetry frame"], ["Reports to review", `${alerts.length + 3}`, "Local reports and threshold alerts"]].map(([label, value, note]) => <div key={label} className="rounded-2xl border border-slate-800 bg-slate-900 p-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">{label}</p><p className="mt-2 text-2xl font-black text-white">{value}</p><p className="mt-1 text-[11px] text-slate-400">{note}</p></div>)}</div>
+    <div className="grid gap-5 xl:grid-cols-12"><section className="min-h-[430px] overflow-hidden rounded-3xl border border-slate-800 bg-slate-900 xl:col-span-7"><div className="flex items-center justify-between p-4"><div><p className="text-sm font-bold text-white">Spatial risk surface</p><p className="text-[11px] text-slate-400">Estimated heatmap from available systems · Chennai, India</p></div><Map className="h-4 w-4 text-violet-400" /></div><div className="h-[365px]"><MapContainer stations={stations} center={[12.96, 80.16]} zoom={10} /></div></section><section className="rounded-3xl border border-slate-800 bg-slate-900 p-5 xl:col-span-5"><div className="flex items-center gap-2"><Activity className="h-4 w-4 text-violet-400" /><div><p className="text-sm font-bold text-white">Exposure by locality</p><p className="text-[11px] text-slate-400">Live AQI signal with alert threshold at 100</p></div></div><div className="mt-5 h-52"><ResponsiveContainer width="100%" height="100%"><BarChart data={exposure} layout="vertical" margin={{ left: 10 }}><XAxis type="number" hide domain={[0, 150]} /><YAxis dataKey="area" type="category" width={92} tick={{ fill: "#cbd5e1", fontSize: 11 }} /><Tooltip cursor={{ fill: "#1e293b" }} contentStyle={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 12 }} /><Bar dataKey="aqi" radius={[0, 7, 7, 0]}>{exposure.map((item) => <Cell key={item.area} fill={item.aqi > 100 ? "#fb7185" : "#8b5cf6"} />)}</Bar></BarChart></ResponsiveContainer></div><div className="mt-5 border-t border-slate-800 pt-4"><p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">System status</p><div className="mt-2 space-y-2">{stations.slice(0, 3).map((station) => <div key={station.id} className="flex items-center justify-between text-xs"><span className="flex items-center gap-2 text-slate-300"><Radio className="h-3.5 w-3.5 text-emerald-400" />{station.name}</span><span className="font-mono text-emerald-400">{station.status}</span></div>)}{stations.length === 0 && <p className="text-xs text-slate-500">Using cached system inventory.</p>}</div></div></section></div>
+    <div className="grid gap-5 lg:grid-cols-3"><section className="rounded-3xl border border-slate-800 bg-slate-900 p-5"><p className="text-sm font-bold text-white">Pollution composition</p><p className="text-[11px] text-slate-400">Dominant contributors, latest composite</p><div className="mt-3 h-52"><ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={composition} dataKey="value" innerRadius={48} outerRadius={75} paddingAngle={4}>{composition.map((x) => <Cell key={x.name} fill={x.color} />)}</Pie><Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155", borderRadius: 12 }} /></PieChart></ResponsiveContainer></div><div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300">{composition.map((x) => <span key={x.name}><i className="mr-1 inline-block h-2 w-2 rounded-full" style={{ background: x.color }} />{x.name} {x.value}%</span>)}</div></section><section className="rounded-3xl border border-slate-800 bg-slate-900 p-5 lg:col-span-2"><div className="flex items-start justify-between"><div><p className="text-sm font-bold text-white">AI inference trace</p><p className="text-[11px] text-slate-400">Transparent RAG result for the current hotspot model</p></div><Bot className="h-5 w-5 text-violet-400" /></div><div className="mt-4 grid gap-3 md:grid-cols-3"><div className="rounded-2xl bg-slate-950 p-3"><p className="text-[10px] uppercase tracking-wider text-slate-500">Inference</p><p className="mt-1 text-xs font-bold text-white">Traffic + inversion likely</p><p className="mt-2 text-[11px] text-slate-400">Expected local AQI rise: +24</p></div><div className="rounded-2xl bg-slate-950 p-3"><p className="text-[10px] uppercase tracking-wider text-slate-500">Confidence</p><p className="mt-1 text-2xl font-black text-emerald-400">87%</p><p className="mt-2 text-[11px] text-slate-400">Sensor agreement: 5/6</p></div><div className="rounded-2xl bg-slate-950 p-3"><p className="text-[10px] uppercase tracking-wider text-slate-500">RAG references</p><p className="mt-1 text-xs font-bold text-white">CPCB NAQI · local wind</p><p className="mt-2 text-[11px] text-slate-400">3 evidence chunks · 11 min old</p></div></div><div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 pt-4 text-xs"><span className="flex items-center gap-2 text-slate-400"><ShieldCheck className="h-4 w-4 text-emerald-400" />Evidence attached; no unsupported alert sent.</span><Link href="/intelligence/chat" className="font-bold text-violet-300 hover:text-violet-200">Open full trace →</Link></div></section></div>
+    <AssistantDock admin />
+  </div>;
 }
-

@@ -54,13 +54,24 @@ export async function getStations(params?: { status?: string; org_id?: string })
   if (params?.org_id) query.set("org_id", params.org_id);
   const qStr = query.toString() ? `?${query.toString()}` : "";
 
-  return apiClient<MonitoringStation[]>(`/api/v1/devices${qStr}`, {}, () => {
+  const res = await apiClient<any>(`/api/v1/devices${qStr}`, {}, () => {
     let list = [...MOCK_STATIONS];
     if (params?.status && params.status !== "all") {
       list = list.filter((s) => s.status === params.status);
     }
     return list;
   });
+
+  const list: MonitoringStation[] = Array.isArray(res)
+    ? res
+    : res && Array.isArray(res.items)
+    ? res.items
+    : MOCK_STATIONS;
+
+  if (params?.status && params.status !== "all") {
+    return list.filter((s) => s.status === params.status);
+  }
+  return list;
 }
 
 export async function getStationById(deviceId: string): Promise<MonitoringStation> {
@@ -157,24 +168,41 @@ export async function getReadingHistory(
 // Alerts & Incidents
 // ----------------------------------------------------------------------
 export async function getAlerts(activeOnly: boolean = true): Promise<EnvironmentalAlert[]> {
-  return apiClient<EnvironmentalAlert[]>(`/api/v1/alerts?active_only=${activeOnly}`, {}, () => {
+  const res = await apiClient<any>(`/api/v1/alerts?active_only=${activeOnly}`, {}, () => {
     if (activeOnly) return MOCK_ALERTS.filter((a) => a.active);
     return MOCK_ALERTS;
   });
+  const list: EnvironmentalAlert[] = Array.isArray(res)
+    ? res
+    : res && Array.isArray(res.items)
+    ? res.items
+    : MOCK_ALERTS;
+  if (activeOnly) return list.filter((a) => a.active);
+  return list;
 }
 
 export async function getIncidents(): Promise<EnvironmentalIncident[]> {
-  return apiClient<EnvironmentalIncident[]>("/api/v1/incidents", {}, () => MOCK_INCIDENTS);
+  const res = await apiClient<any>("/api/v1/incidents", {}, () => MOCK_INCIDENTS);
+  if (Array.isArray(res)) return res;
+  if (res && Array.isArray(res.items)) return res.items;
+  return MOCK_INCIDENTS;
 }
 
 // ----------------------------------------------------------------------
 // Community Reports
 // ----------------------------------------------------------------------
 export async function getReports(userId?: string): Promise<CommunityReport[]> {
-  return apiClient<CommunityReport[]>("/api/v1/reports", {}, () => {
+  const res = await apiClient<any>("/api/v1/reports", {}, () => {
     if (userId) return MOCK_REPORTS.filter((r) => r.user_id === userId);
     return MOCK_REPORTS;
   });
+  const list: CommunityReport[] = Array.isArray(res)
+    ? res
+    : res && Array.isArray(res.items)
+    ? res.items
+    : MOCK_REPORTS;
+  if (userId) return list.filter((r) => r.user_id === userId);
+  return list;
 }
 
 export async function getReportById(reportId: string): Promise<CommunityReport> {

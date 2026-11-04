@@ -5,6 +5,7 @@ import { getStations, getReadingHistory } from "@/lib/api/endpoints";
 import { MonitoringStation, ReadingHistoryPoint } from "@/lib/types";
 import { ChartCard } from "@/components/ui/ChartCard";
 import { AQITrendChart } from "@/components/charts/AQITrendChart";
+import { MapContainer } from "@/components/map/MapContainer";
 import {
   Clock,
   Play,
@@ -133,6 +134,22 @@ export default function PollutionTimeMachinePage() {
       </div>
 
       {/* Main Historical Chart */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="h-[360px]">
+          <MapContainer
+            stations={stations}
+            selectedStationId={selectedStation}
+            heatmapIntensity={currentPoint?.aqi}
+            center={[12.8797, 80.0833]}
+            zoom={12}
+          />
+        </div>
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
+          <div className="flex items-center gap-2"><Layers className="w-4 h-4 text-indigo-600" /><h2 className="text-sm font-bold">Historical heatmap replay</h2></div>
+          <p className="mt-2 text-xs leading-relaxed text-slate-500">The selected station&apos;s estimated dispersion surface updates as you scrub or play the timeline. This is an interpolation of sensor history, not a satellite measurement.</p>
+          <div className="mt-5 grid grid-cols-2 gap-3 text-xs"><div className="rounded-xl bg-slate-50 dark:bg-slate-800 p-3"><span className="block text-slate-400">Selected time</span><strong className="font-mono">{currentPoint ? new Date(currentPoint.timestamp).toLocaleString("en-IN") : "Loading"}</strong></div><div className="rounded-xl bg-indigo-50 dark:bg-indigo-950/30 p-3"><span className="block text-slate-400">Replayed AQI</span><strong className="font-mono text-indigo-600">{currentPoint?.aqi ?? "—"}</strong></div></div>
+        </div>
+      </div>
       <ChartCard
         title="Atmospheric Chronology Profile"
         description="Scrubbed historical point highlighted against diurnal baseline."

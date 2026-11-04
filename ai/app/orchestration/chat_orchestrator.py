@@ -64,6 +64,15 @@ Distinguish clearly between:
 - Retrieved knowledge-base documents (RAG)
 - External web sources (Tavily — clearly labeled)
 - Your own interpretation or recommendations
+
+MARKDOWN FORMATTING REQUIREMENTS:
+- Structure all responses with clean, readable GitHub-flavored Markdown.
+- Use clear section headers (### Overview, ### Key Observations, ### Recommendations).
+- Use bullet points (- ) or numbered lists (1. ) for sequential steps, anomalies, or recommendations.
+- Bold essential measurements, pollutants, and levels (e.g. **PM2.5: 68 µg/m³**, **AQI: 124 (Moderate)**).
+- Use inline code (`ST-001`, `pm25`, `crescent-vandalur-01`) for sensor and station IDs.
+- Use Markdown tables when comparing stations, time periods, or pollutant thresholds.
+- Keep paragraphs concise, well-spaced, and easy to read.
 """
 
 

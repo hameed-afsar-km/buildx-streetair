@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { AuthUser, UserRole } from "@/lib/types";
 import { registerAuthTokenProvider } from "@/lib/api/client";
-import { auth, fbSignOut, onAuthStateChanged, FirebaseUser } from "@/lib/firebase";
+import { auth, fbSignOut, onAuthStateChanged, FirebaseUser, GoogleAuthProvider, signInWithPopup } from "@/lib/firebase";
 import { getCurrentUser } from "@/lib/api/endpoints";
 
 interface AuthContextType {
@@ -13,6 +13,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   role: UserRole;
   login: (email: string, pass: string) => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
   register: (email: string, pass: string, name: string) => Promise<void>;
   logout: () => Promise<void>;
   switchDemoRole: (role: UserRole) => void;
@@ -129,6 +130,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const loginWithGoogle = async () => {
+    if (!auth) throw new Error("Firebase Authentication is not configured for this deployment.");
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  };
+
   const register = async (email: string, pass: string, name: string) => {
     setIsLoading(true);
     try {
@@ -184,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         role: user?.role || "citizen",
         login,
+        loginWithGoogle,
         register,
         logout,
         switchDemoRole,

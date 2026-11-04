@@ -14,7 +14,7 @@ export function PublicFooter() {
                 <Wind className="w-4 h-4" />
               </div>
               <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
-                STREET<span className="text-brand-600 dark:text-brand-400">AIR</span>
+                STREET<span className="gradient-air">AIR</span>
               </span>
             </Link>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed max-w-sm">

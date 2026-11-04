@@ -44,7 +44,7 @@ export function UserSidebar() {
         </div>
         <div>
           <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
-            STREET<span className="text-brand-600 dark:text-brand-400">AIR</span>
+            STREET<span className="gradient-air">AIR</span>
           </span>
           <span className="block text-[10px] text-slate-400 font-mono">Citizen Workspace</span>
         </div>

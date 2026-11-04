@@ -30,6 +30,7 @@ interface MapContainerProps {
   onSelectStation?: (station: MonitoringStation) => void;
   center?: [number, number];
   zoom?: number;
+  heatmapIntensity?: number;
 }
 
 export function MapContainer(props: MapContainerProps) {

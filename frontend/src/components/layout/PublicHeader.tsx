@@ -46,10 +46,7 @@ export function PublicHeader() {
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
-                STREET<span className="text-brand-600 dark:text-brand-400">AIR</span>
-              </span>
-              <span className="text-[9px] font-mono px-1.5 py-0.2 rounded font-bold bg-brand-100 text-brand-800 dark:bg-brand-950/70 dark:text-brand-300">
-                SAAS
+                STREET<span className="gradient-air">AIR</span>
               </span>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 -mt-0.5 tracking-tight font-medium">

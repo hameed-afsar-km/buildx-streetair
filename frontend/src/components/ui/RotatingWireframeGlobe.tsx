@@ -10,8 +10,8 @@ interface RotatingWireframeGlobeProps {
 
 export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
   className = "",
-  dotColor = "rgba(200, 169, 106, 0.45)", // #C8A96A gold tint
-  latLongColor = "rgba(230, 240, 233, 0.18)", // #E6F0E9 mint cream tint
+  dotColor = "rgba(5, 150, 105, 0.95)", // Rich vibrant Emerald 600
+  latLongColor = "rgba(16, 185, 129, 0.65)", // Strong Emerald wireframe
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -36,7 +36,7 @@ export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
     // Spherical geometry generation
     const numLatitudes = 24;
     const numLongitudes = 36;
-    const particlesCount = 750;
+    const particlesCount = 800;
 
     // Generate random surface points (dots) on sphere
     const dots: { theta: number; phi: number; size: number; alpha: number }[] = [];
@@ -44,8 +44,8 @@ export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
       dots.push({
         theta: Math.acos(2 * Math.random() - 1), // 0 to PI
         phi: Math.random() * 2 * Math.PI, // 0 to 2PI
-        size: Math.random() * 1.6 + 0.8,
-        alpha: Math.random() * 0.7 + 0.3,
+        size: Math.random() * 2.0 + 1.0,
+        alpha: Math.random() * 0.6 + 0.4,
       });
     }
 
@@ -64,7 +64,7 @@ export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
       rotationAngle += rotationSpeed;
 
       // 1. Draw Longitudinal Lines (Meridians)
-      ctx.lineWidth = 1.0;
+      ctx.lineWidth = 1.35;
       for (let j = 0; j < numLongitudes; j++) {
         const phiBase = (j * (2 * Math.PI)) / numLongitudes + rotationAngle;
         ctx.beginPath();
@@ -154,16 +154,16 @@ export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
         }
       });
 
-      // 4. Subtle Outer Atmosphere Horizon Glow Arc
-      const grad = ctx.createRadialGradient(cx, cy, radius * 0.96, cx, cy, radius * 1.05);
-      grad.addColorStop(0, "rgba(200, 169, 106, 0.28)");
-      grad.addColorStop(0.5, "rgba(230, 240, 233, 0.08)");
-      grad.addColorStop(1, "rgba(15, 61, 52, 0)");
+      // 4. Vibrant Emerald Atmosphere Horizon Glow Arc
+      const grad = ctx.createRadialGradient(cx, cy, radius * 0.95, cx, cy, radius * 1.05);
+      grad.addColorStop(0, "rgba(16, 185, 129, 0.55)");
+      grad.addColorStop(0.5, "rgba(5, 150, 105, 0.25)");
+      grad.addColorStop(1, "rgba(5, 150, 105, 0)");
 
       ctx.beginPath();
       ctx.arc(cx, cy, radius * 1.03, 0, Math.PI * 2);
       ctx.strokeStyle = grad;
-      ctx.lineWidth = 14;
+      ctx.lineWidth = 16;
       ctx.stroke();
 
       animationFrameId = requestAnimationFrame(render);
@@ -179,4 +179,3 @@ export const RotatingWireframeGlobe: React.FC<RotatingWireframeGlobeProps> = ({
 
   return <canvas ref={canvasRef} className={`w-full h-full block pointer-events-none ${className}`} />;
 };
-

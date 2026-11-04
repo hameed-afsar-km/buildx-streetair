@@ -58,7 +58,7 @@ export function AdminSidebar() {
         </div>
         <div>
           <span className="font-extrabold text-sm tracking-tight text-white">
-            STREET<span className="text-red-400">AIR</span>
+            STREET<span className="gradient-air">AIR</span>
           </span>
           <span className="block text-[10px] text-red-300 font-mono uppercase tracking-wider">
             Command Centre

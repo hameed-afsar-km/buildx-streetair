@@ -4,12 +4,12 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { Wind, Lock, Mail, ArrowRight, ShieldCheck, User } from "lucide-react";
+import { Wind, Lock, Mail, ArrowRight, ShieldCheck, User, Chrome } from "lucide-react";
 import { UserRole } from "@/lib/types";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, switchDemoRole } = useAuth();
+  const { login, loginWithGoogle, switchDemoRole } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,6 +28,16 @@ export default function LoginPage() {
   const handleQuickDemoLogin = (role: UserRole, targetRoute: string) => {
     switchDemoRole(role);
     router.push(targetRoute);
+  };
+
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    try {
+      await loginWithGoogle();
+      router.push("/app");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,6 +101,15 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-100 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-700 transition disabled:opacity-50"
+            >
+              <Chrome className="w-4 h-4 text-red-500" /> Continue with Google
+            </button>
+            <div className="flex items-center gap-3 text-[10px] font-bold uppercase tracking-wider text-slate-400"><span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />or email<span className="h-px flex-1 bg-slate-200 dark:bg-slate-700" /></div>
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Email Address
