@@ -40,7 +40,7 @@ const TIME_WINDOW_OPTIONS: { label: string; value: TimeWindow }[] = [
   { label: "Last 7d", value: "7d" },
 ];
 
-// Mock result generator — in production this calls the AI endpoint
+// Mock result generator - in production this calls the AI endpoint
 function generateMockResult(stationName: string, timeWindow: TimeWindow): InvestigationResult {
   return {
     sourceCategory: "Vehicular Traffic Emissions",
@@ -48,11 +48,11 @@ function generateMockResult(stationName: string, timeWindow: TimeWindow): Invest
     evidence: [
       {
         label: "PM2.5 / PM10 Ratio",
-        detail: "Ratio of 0.78 is consistent with fine particulate signatures from diesel exhaust combustion (typical range 0.70–0.85).",
+        detail: "Ratio of 0.78 is consistent with fine particulate signatures from diesel exhaust combustion (typical range 0.70-0.85).",
       },
       {
         label: "Temporal Pattern Match",
-        detail: `Peak concentrations align with morning (08:00–10:00) and evening (18:00–21:00) traffic rush periods at the ${stationName} corridor.`,
+        detail: `Peak concentrations align with morning (08:00-10:00) and evening (18:00-21:00) traffic rush periods at the ${stationName} corridor.`,
       },
       {
         label: "Source Signature Match",
@@ -65,7 +65,7 @@ function generateMockResult(stationName: string, timeWindow: TimeWindow): Invest
     ],
     recommendations: [
       "Deploy mobile CPCB-grade sensor at Kilambakkam junction to refine source apportionment confidence above 92%.",
-      "Issue advisory to Tambaram Municipal Corporation for enhanced dust suppression on road construction zones between 06:00–09:00.",
+      "Issue advisory to Tambaram Municipal Corporation for enhanced dust suppression on road construction zones between 06:00-09:00.",
       "Coordinate with RTO for high-emission vehicle checks at Vandalur toll plaza during peak hours.",
     ],
     stationName,
@@ -133,7 +133,7 @@ export default function InvestigationPage() {
             Pollution Detective &amp; Source Apportionment
           </h1>
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 max-w-2xl">
-            AI-driven root cause analysis of pollution incidents — identifies emission sources,
+            AI-driven root cause analysis of pollution incidents - identifies emission sources,
             correlates sensor signatures, and recommends targeted mitigations.
           </p>
         </div>
@@ -189,7 +189,7 @@ export default function InvestigationPage() {
                 >
                   {stations.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name} — {s.location_name}
+                      {s.name} - {s.location_name}
                     </option>
                   ))}
                 </select>

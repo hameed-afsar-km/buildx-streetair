@@ -114,9 +114,9 @@ export default function PredictionsPage() {
         {/* Summary Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Peak AQI Today", value: "124", sub: "20:00–21:00 IST", icon: <TrendingUp className="w-4 h-4 text-rose-500" /> },
-            { label: "Morning Rush Risk", value: "High", sub: "08:00–10:30 IST", icon: <AlertCircle className="w-4 h-4 text-amber-500" /> },
-            { label: "Best Outdoor Time", value: "13:00–16:00", sub: "AQI ~58–69", icon: <Wind className="w-4 h-4 text-emerald-500" /> },
+            { label: "Peak AQI Today", value: "124", sub: "20:00-21:00 IST", icon: <TrendingUp className="w-4 h-4 text-rose-500" /> },
+            { label: "Morning Rush Risk", value: "High", sub: "08:00-10:30 IST", icon: <AlertCircle className="w-4 h-4 text-amber-500" /> },
+            { label: "Best Outdoor Time", value: "13:00-16:00", sub: "AQI ~58-69", icon: <Wind className="w-4 h-4 text-emerald-500" /> },
             { label: "Forecast Horizon", value: "72 hours", sub: "Pattern model", icon: <Clock className="w-4 h-4 text-brand-500" /> },
           ].map(({ label, value, sub, icon }) => (
             <div
@@ -132,7 +132,7 @@ export default function PredictionsPage() {
 
         {/* Trend Chart */}
         <ChartCard
-          title="24-Hour AQI Forecast — Vandalur Corridor"
+          title="24-Hour AQI Forecast - Vandalur Corridor"
           subtitle="Pattern-based estimate. Dashed area = predicted range."
         >
           <div className="h-[280px] w-full">
@@ -144,7 +144,7 @@ export default function PredictionsPage() {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
             <Clock className="w-4 h-4 text-brand-600" />
-            <h2 className="text-sm font-bold text-slate-900 dark:text-white">Hourly Risk Forecast — Today</h2>
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white">Hourly Risk Forecast - Today</h2>
           </div>
 
           <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-12 gap-2">
@@ -163,7 +163,7 @@ export default function PredictionsPage() {
 
           {/* Legend */}
           <div className="flex items-center gap-4 mt-4 text-xs text-slate-500">
-            {[["low", "Good (AQI < 70)"], ["moderate", "Moderate (70–100)"], ["high", "Elevated (> 100)"]].map(([risk, label]) => (
+            {[["low", "Good (AQI < 70)"], ["moderate", "Moderate (70-100)"], ["high", "Elevated (> 100)"]].map(([risk, label]) => (
               <span key={risk} className="flex items-center gap-1.5">
                 <span className={`w-3 h-3 rounded ${riskColor[risk]}`} />
                 {label}
@@ -181,17 +181,17 @@ export default function PredictionsPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             {[
               {
-                time: "Early Morning (04:00–06:00)",
-                advice: "Best window for outdoor exercise. AQI expected to be in Good range (38–42).",
+                time: "Early Morning (04:00-06:00)",
+                advice: "Best window for outdoor exercise. AQI expected to be in Good range (38-42).",
                 color: "border-emerald-200 dark:border-emerald-800",
               },
               {
-                time: "Afternoon (13:00–16:00)",
+                time: "Afternoon (13:00-16:00)",
                 advice: "Second-best window. Sea-breeze dispersion keeps pollution moderate. Good for walking.",
                 color: "border-amber-200 dark:border-amber-800",
               },
               {
-                time: "Peak Hours (08:00–10:30, 18:00–21:00)",
+                time: "Peak Hours (08:00-10:30, 18:00-21:00)",
                 advice: "Avoid prolonged outdoor exposure. Sensitive groups (children, elderly) should stay indoors.",
                 color: "border-rose-200 dark:border-rose-800",
               },

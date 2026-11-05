@@ -32,6 +32,8 @@ interface MapContainerProps {
   heatmapIntensity?: number;
   showControls?: boolean;
   showLegend?: boolean;
+  showHeatmap?: boolean;
+  showStations?: boolean;
 }
 
 export function MapContainer(props: MapContainerProps) {

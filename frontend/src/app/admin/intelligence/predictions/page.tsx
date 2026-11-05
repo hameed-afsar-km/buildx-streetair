@@ -151,7 +151,7 @@ export default function AdminPredictionsPage() {
         />
         <MetricCard
           title="Peak Risk Window"
-          value="18:00–21:00"
+          value="18:00 - 21:00"
           subtitle="Expected tonight (AQI ~124)"
           statusColor="rose"
         />

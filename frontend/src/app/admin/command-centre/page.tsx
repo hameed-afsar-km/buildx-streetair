@@ -3,12 +3,14 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Activity, AlertTriangle, Bot, Download, FileSpreadsheet, FileText, Map, Radio, ShieldCheck, X, Bell } from "lucide-react";
+import { Activity, AlertTriangle, Bot, Download, FileSpreadsheet, FileText, Map, Radio, ShieldCheck, X, Bell, SlidersHorizontal, Radar, Play, Construction, Factory, Wind } from "lucide-react";
 import { getAlerts, getStations } from "@/lib/api/endpoints";
+import { TAMIL_NADU_60_STATIONS } from "@/lib/stationsData";
 import { EnvironmentalAlert, MonitoringStation } from "@/lib/types";
 import { MapContainer } from "@/components/map/MapContainer";
 import { AssistantDock } from "@/components/ui/AssistantDock";
 import { ESP32LiveWidget, type ESP32Alert } from "@/components/ui/ESP32LiveWidget";
+import { NeighborhoodMeshScanner } from "@/components/dashboard/NeighborhoodMeshScanner";
 import { useESP32Alerts } from "@/lib/esp32AlertStore";
 
 const exposure = [
@@ -33,17 +35,27 @@ function severityColor(s: ESP32Alert["severity"]) {
 }
 
 export default function AdminCommandCentrePage() {
-  const [stations, setStations]   = useState<MonitoringStation[]>([]);
+  const [stations, setStations]   = useState<MonitoringStation[]>(TAMIL_NADU_60_STATIONS);
   const [alerts, setAlerts]       = useState<EnvironmentalAlert[]>([]);
   const [exports, setExports]     = useState<string | null>(null);
   const [showIssues, setShowIssues] = useState(true);
+  const [showSimSettings, setShowSimSettings] = useState(false);
 
   const { alerts: esp32Alerts, pushAlert, dismissAlert, clearAll } = useESP32Alerts();
 
-  useEffect(() => {
-    getStations().then((x) => setStations(Array.isArray(x) ? x : []));
+  const loadData = useCallback(() => {
+    getStations().then((x) => {
+      if (Array.isArray(x) && x.length > 0) setStations(x);
+    });
     getAlerts(true).then((x) => setAlerts(Array.isArray(x) ? x : []));
   }, []);
+
+  useEffect(() => {
+    loadData();
+    const handleScenario = () => loadData();
+    window.addEventListener("streetair:scenario_changed", handleScenario);
+    return () => window.removeEventListener("streetair:scenario_changed", handleScenario);
+  }, [loadData]);
 
   const exportSnapshot = (format: string) => {
     setExports(`${format} export queued · ${new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}`);
@@ -86,6 +98,15 @@ export default function AdminCommandCentrePage() {
             <button onClick={() => exportSnapshot("PDF")} className="rounded-xl bg-emerald-600 px-3.5 py-2 text-xs font-bold text-slate-900 dark:text-white hover:bg-emerald-500 shadow-md transition">
               <FileText className="mr-1.5 inline h-3.5 w-3.5" />PDF Brief
             </button>
+            {/* Simulation Settings button */}
+            <button
+              onClick={() => setShowSimSettings((v) => !v)}
+              className="rounded-xl border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-3.5 py-2 text-xs font-bold text-emerald-800 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>Simulation Settings</span>
+            </button>
+
             {/* Active Issues toggle */}
             <button
               onClick={() => setShowIssues((v) => !v)}
@@ -111,6 +132,67 @@ export default function AdminCommandCentrePage() {
           </p>
         )}
       </header>
+
+      {/* ── Simulation Settings & Neighborhood Scan Panel ───────────────── */}
+      {showSimSettings && (
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5 space-y-4 transition-colors animate-in fade-in duration-200">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">
+                <Radar className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  Simulation Scenarios & Autonomous Neighborhood Triangulation
+                </h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Select a test scenario or keypad trigger to observe how Crescent Institute pings and scans surrounding Tamil Nadu systems.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowSimSettings(false)}
+              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {[
+              { key: "scenario_1_normal", num: "1", label: "Normal Air Quality", aqi: 34, cat: "Good" },
+              { key: "scenario_2_traffic", num: "2", label: "Traffic Inversion", aqi: 112, cat: "Moderate" },
+              { key: "scenario_3_construction", num: "3", label: "Construction Dust", aqi: 145, cat: "Moderate" },
+              { key: "scenario_4_industrial", num: "4", label: "SIPCOT Industrial", aqi: 185, cat: "Poor" },
+              { key: "scenario_9_extreme", num: "9", label: "Extreme Emergency", aqi: 310, cat: "Severe" },
+            ].map((sc) => (
+              <button
+                key={sc.key}
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("streetair:scenario_changed", { detail: { scenario: sc.key } }));
+                }}
+                className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 hover:bg-emerald-50 dark:bg-slate-800/40 dark:hover:bg-emerald-950/40 hover:border-emerald-500 text-left transition flex flex-col justify-between"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+                    Key {sc.num}
+                  </span>
+                  <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                    sc.aqi > 100
+                      ? "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300"
+                      : "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"
+                  }`}>
+                    AQI {sc.aqi}
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-slate-900 dark:text-white mt-2">{sc.label}</p>
+                <span className="text-[10px] text-slate-400 mt-0.5">{sc.cat}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Active Issues Panel ──────────────────────────────────────────── */}
       {showIssues && (
@@ -201,7 +283,7 @@ export default function AdminCommandCentrePage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           ["Operational Systems", `${stations.filter((s) => s.status === "online").length || 5}/${stations.length || 6}`, "Sensors reporting normally", "text-emerald-600 dark:text-emerald-400"],
-          ["Forecast Risk", "Moderate", "Peak expected 18:00–21:00", "text-amber-600 dark:text-amber-400"],
+          ["Forecast Risk", "Moderate", "Peak expected 18:00 - 21:00", "text-amber-600 dark:text-amber-400"],
           ["Cache Freshness", "42 sec", "Last verified telemetry frame", "text-emerald-600 dark:text-emerald-400"],
           ["Active Issues", `${totalIssues}`, "ESP32 & threshold alerts", totalIssues > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400"],
         ].map(([label, value, note, valColor]) => (
@@ -216,6 +298,9 @@ export default function AdminCommandCentrePage() {
       {/* ESP32 Hardware Node */}
       <ESP32LiveWidget onAlert={handleESP32Alert} />
 
+      {/* Autonomous Spatial Neighborhood Mesh Scanner */}
+      <NeighborhoodMeshScanner />
+
       {/* Map & Exposure Row */}
       <div className="grid gap-6 xl:grid-cols-12">
         <section className="min-h-[430px] overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 xl:col-span-7 flex flex-col shadow-sm transition-colors">
@@ -226,8 +311,14 @@ export default function AdminCommandCentrePage() {
             </div>
             <Map className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
           </div>
-          <div className="flex-1 min-h-[365px]">
-            <MapContainer stations={stations} center={[12.96, 80.16]} zoom={10} showControls={false} showLegend={false} />
+          <div className="flex-1 min-h-[380px]">
+            <MapContainer
+              stations={stations}
+              center={[12.8797, 80.0833]}
+              zoom={11}
+              showControls={true}
+              showLegend={false}
+            />
           </div>
         </section>
 

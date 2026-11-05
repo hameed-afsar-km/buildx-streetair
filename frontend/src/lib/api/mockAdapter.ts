@@ -17,6 +17,7 @@ import {
   AiChatResponse,
 } from "./types";
 import { SCENARIO_DEFINITIONS } from "../scenarios";
+import { TAMIL_NADU_60_STATIONS } from "../stationsData";
 
 // In-memory active scenario state for local demonstration preview
 let activeScenarioKey: ScenarioKey = "scenario_1_normal";
@@ -27,108 +28,20 @@ export function getActiveMockScenario(): ScenarioKey {
 
 export function setActiveMockScenario(key: ScenarioKey): void {
   activeScenarioKey = key;
+  const sc = SCENARIO_DEFINITIONS[key];
+  if (sc && MOCK_STATIONS && MOCK_STATIONS.length > 0) {
+    const aqiMid = Math.round((sc.expectedAQIRange[0] + sc.expectedAQIRange[1]) / 2);
+    MOCK_STATIONS[0].aqi = aqiMid;
+    MOCK_STATIONS[0].category = sc.category;
+    MOCK_STATIONS[0].scenario_active = key;
+    MOCK_STATIONS[0].last_seen = new Date().toISOString();
+  }
 }
 
 // ----------------------------------------------------------------------
-// Primary Monitoring Stations
+// Primary Monitoring Stations (60 Live Tamil Nadu Mesh Nodes)
 // ----------------------------------------------------------------------
-export const MOCK_STATIONS: MonitoringStation[] = [
-  {
-    id: "crescent-vandalur-01",
-    name: "Crescent Institute Campus Beacon",
-    location_name: "B.S. Abdur Rahman Crescent Institute of Science and Technology, GST Road",
-    city: "Vandalur, Chennai South",
-    state: "Tamil Nadu",
-    country: "India",
-    coordinates: { lat: 12.8797, lng: 80.0833 },
-    status: "online",
-    source: "SIMULATED",
-    scenario_active: "scenario_1_normal",
-    is_hardware_connected: true,
-    last_seen: new Date().toISOString(),
-    aqi: 34,
-    category: "Good",
-    dominant_pollutant: "PM2.5",
-    firmware_version: "esp32-freertos-v2.3.1",
-    sensor_suite: ["MQ-135 Gas Sensor", "PMS5003 Particulate", "BME280 Temp/Humidity/Pressure"],
-  },
-  {
-    id: "kilambakkam-terminal-02",
-    name: "Kilambakkam Bus Terminus (KCBT)",
-    location_name: "Kalaignar Centenary Bus Terminus, GST Road",
-    city: "Kilambakkam",
-    state: "Tamil Nadu",
-    country: "India",
-    coordinates: { lat: 12.8622, lng: 80.0715 },
-    status: "online",
-    source: "SIMULATED",
-    scenario_active: "scenario_2_traffic",
-    is_hardware_connected: false,
-    last_seen: new Date().toISOString(),
-    aqi: 148,
-    category: "Poor",
-    dominant_pollutant: "NO2",
-    firmware_version: "station-grid-v1.8.0",
-    sensor_suite: ["Laser PM2.5/PM10", "NO2 Electrochemical", "Wind Anemometer"],
-  },
-  {
-    id: "tambaram-junction-03",
-    name: "Tambaram Railway Hub Station",
-    location_name: "Grand Southern Trunk Rd, East Tambaram",
-    city: "Tambaram, Chennai",
-    state: "Tamil Nadu",
-    country: "India",
-    coordinates: { lat: 12.9249, lng: 80.1285 },
-    status: "online",
-    source: "DEMONSTRATION",
-    scenario_active: "scenario_2_traffic",
-    is_hardware_connected: false,
-    last_seen: new Date().toISOString(),
-    aqi: 165,
-    category: "Unhealthy",
-    dominant_pollutant: "PM2.5",
-    firmware_version: "station-grid-v1.8.0",
-    sensor_suite: ["Optical Dust Sensor", "CO & NO2 Sensor", "Sound Level Meter"],
-  },
-  {
-    id: "maraimalai-industrial-04",
-    name: "SIPCOT Industrial Corridor Beacon",
-    location_name: "Maraimalai Nagar Industrial Area Phase II",
-    city: "Chengalpattu District",
-    state: "Tamil Nadu",
-    country: "India",
-    coordinates: { lat: 12.7938, lng: 80.0238 },
-    status: "online",
-    source: "SIMULATED",
-    scenario_active: "scenario_4_industrial",
-    is_hardware_connected: false,
-    last_seen: new Date().toISOString(),
-    aqi: 228,
-    category: "Very Unhealthy",
-    dominant_pollutant: "SO2 & VOC",
-    firmware_version: "station-grid-v2.0.4",
-    sensor_suite: ["PID VOC Detector", "SO2 NDIR", "PM1/2.5/10 Spectrometer"],
-  },
-  {
-    id: "vandalur-zoo-eco-05",
-    name: "Arignar Anna Zoological Park Reserve",
-    location_name: "Vandalur Reserve Forest Buffer Zone",
-    city: "Vandalur",
-    state: "Tamil Nadu",
-    country: "India",
-    coordinates: { lat: 12.8912, lng: 80.0984 },
-    status: "online",
-    source: "DEMONSTRATION",
-    scenario_active: "scenario_1_normal",
-    is_hardware_connected: false,
-    last_seen: new Date().toISOString(),
-    aqi: 38,
-    category: "Good",
-    dominant_pollutant: "PM10",
-    firmware_version: "solar-remote-v1.4.2",
-    sensor_suite: ["Ultrasonic Particle Sensor", "Forest Canopy Temp/Humid"],
-  },
-];
+export const MOCK_STATIONS: MonitoringStation[] = TAMIL_NADU_60_STATIONS;
 
 // Helper to compute reading for the active scenario
 export function getMockLatestReading(deviceId: string = "crescent-vandalur-01"): AirReading {

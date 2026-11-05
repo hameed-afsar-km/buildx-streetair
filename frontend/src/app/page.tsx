@@ -13,9 +13,6 @@ import {
   Zap,
   Bell,
   ArrowUpRight,
-  Cpu,
-  Wifi,
-  Database,
 } from "lucide-react";
 
 import { RotatingWireframeGlobe } from "@/components/ui/RotatingWireframeGlobe";
@@ -68,12 +65,6 @@ const stages = [
     icon: Bell,
     accent: "bg-rose-50 text-rose-600 ring-1 ring-rose-200",
   },
-];
-
-const techStack = [
-  { icon: Cpu, label: "ESP32 IoT Nodes" },
-  { icon: Wifi, label: "Real-time WebSocket" },
-  { icon: Database, label: "Firebase + Firestore" },
 ];
 
 export default function LandingPage() {
@@ -139,21 +130,6 @@ export default function LandingPage() {
               <ShieldCheck className="w-4 h-4 text-emerald-600" />
               Admin
             </button>
-          </motion.div>
-
-          {/* Tech badges */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.55 }}
-            className="mt-9 flex items-center justify-center gap-6"
-          >
-            {techStack.map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-1.5 text-slate-400 text-[11px] font-medium">
-                <Icon className="w-3.5 h-3.5" />
-                {label}
-              </div>
-            ))}
           </motion.div>
         </div>
 

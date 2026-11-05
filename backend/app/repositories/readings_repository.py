@@ -22,9 +22,10 @@ class ReadingsRepository(FirestoreRepository):
             logger.debug("Firestore get_latest_for_station fallback: %s", e)
             
         # In-memory fallback
+        station_aliases = {"ST-001", "crescent-vandalur-01"} if station_id in {"ST-001", "crescent-vandalur-01"} else {station_id}
         matching = [
             r for r in self._mem().values()
-            if r.get("station_id") == station_id
+            if r.get("station_id") in station_aliases
         ]
         if matching:
             matching.sort(key=lambda x: str(x.get("timestamp", "")), reverse=True)

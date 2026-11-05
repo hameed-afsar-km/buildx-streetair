@@ -62,11 +62,31 @@ export async function getStations(params?: { status?: string; org_id?: string })
     return list;
   });
 
-  const list: MonitoringStation[] = Array.isArray(res)
-    ? res
-    : res && Array.isArray(res.items)
-    ? res.items
-    : MOCK_STATIONS;
+  const rawList = Array.isArray(res) ? res : res && Array.isArray(res.items) ? res.items : MOCK_STATIONS;
+  const list: MonitoringStation[] = (rawList && rawList.length > 0 ? rawList : MOCK_STATIONS).map((st: any, idx: number) => {
+    const lat = Number(st.coordinates?.lat ?? st.latitude ?? st.lat ?? (12.8797 + (idx * 0.01)));
+    const lng = Number(st.coordinates?.lng ?? st.longitude ?? st.lng ?? (80.0833 + (idx * 0.01)));
+    const aqi = typeof st.aqi === "number" ? st.aqi : 68;
+    return {
+      id: String(st.id || st.station_id || `station-${idx + 1}`),
+      name: String(st.name || `Station ${idx + 1}`),
+      location_name: String(st.location_name || st.description || "Tamil Nadu Mesh"),
+      city: String(st.city || "Chennai"),
+      state: String(st.state || "Tamil Nadu"),
+      country: String(st.country || "India"),
+      coordinates: { lat, lng },
+      status: st.status === "active" ? "online" : (st.status || "online"),
+      source: st.source || (st.source_mode === "hardware" ? "HARDWARE" : "SIMULATED"),
+      scenario_active: st.scenario_active || "scenario_1_normal",
+      is_hardware_connected: Boolean(st.is_hardware_connected || st.source_mode === "hardware"),
+      last_seen: String(st.last_seen || st.last_seen_at || new Date().toISOString()),
+      aqi,
+      category: st.category || (aqi > 100 ? "Moderate" : "Good"),
+      dominant_pollutant: String(st.dominant_pollutant || "PM2.5"),
+      firmware_version: String(st.firmware_version || "v2.4.1"),
+      sensor_suite: Array.isArray(st.sensor_suite) ? st.sensor_suite : ["PM2.5", "PM10"],
+    };
+  });
 
   if (params?.status && params.status !== "all") {
     return list.filter((s) => s.status === params.status);
@@ -99,32 +119,46 @@ export async function getLatestReading(deviceId?: string): Promise<AirReading> {
     return rawResponse as AirReading;
   }
 
-  // Transform backend response → AirReading shape
-  if (rawResponse && "readings" in rawResponse && rawResponse.readings) {
-    const r = rawResponse.readings;
-    const aqi = typeof rawResponse.aqi === "number" ? rawResponse.aqi : 0;
-    const category = rawResponse.aqi_category || "Good";
+  // Transform backend response → AirReading shape (handles raw reading or nested under .reading)
+  const readingObj = (rawResponse && typeof rawResponse === "object" && "reading" in rawResponse)
+    ? rawResponse.reading
+    : rawResponse;
 
-    // Map scenario_id to ScenarioKey
+  if (readingObj && "readings" in readingObj && readingObj.readings) {
+    const r = readingObj.readings;
+    const aqi = typeof readingObj.aqi === "number"
+      ? readingObj.aqi
+      : typeof readingObj.aqi?.aqi === "number"
+      ? readingObj.aqi.aqi
+      : 0;
+    const category = readingObj.aqi_category || readingObj.aqi?.category || "Good";
+
+    // Map scenario_id to ScenarioKey (includes short aliases from ESP32 keypad firmware)
     const scenarioIdMap: Record<string, ScenarioKey> = {
       "normal": "scenario_1_normal",
+      "traffic": "scenario_2_traffic",
       "traffic_congestion": "scenario_2_traffic",
+      "construction": "scenario_3_construction",
       "construction_dust": "scenario_3_construction",
+      "industrial": "scenario_4_industrial",
       "industrial_emissions": "scenario_4_industrial",
       "waste_burning": "scenario_5_waste_burning",
       "high_humidity": "scenario_6_humidity",
+      "smoke": "scenario_7_smoke",
       "smoke_event": "scenario_7_smoke",
+      "dispersal": "scenario_8_dispersal",
       "pollution_dispersal": "scenario_8_dispersal",
+      "extreme": "scenario_9_extreme",
       "extreme_pollution": "scenario_9_extreme",
     };
-    const scenarioKey: ScenarioKey = scenarioIdMap[rawResponse.scenario_id || "normal"] || "scenario_1_normal";
+    const scenarioKey: ScenarioKey = scenarioIdMap[readingObj.scenario_id || "normal"] || "scenario_1_normal";
 
     return {
-      reading_id: rawResponse.reading_id || `rdg_${Date.now()}`,
-      device_id: rawResponse.device_id || deviceId || "unknown",
-      station_name: rawResponse.station_name,
-      timestamp: rawResponse.timestamp || new Date().toISOString(),
-      source: (rawResponse.source || "SIMULATED") as "HARDWARE" | "SIMULATED" | "DEMONSTRATION" | "HISTORICAL",
+      reading_id: readingObj.reading_id || `rdg_${Date.now()}`,
+      device_id: readingObj.device_id || deviceId || "unknown",
+      station_name: rawResponse?.station_name || readingObj.station_name || "Crescent Institute Campus Beacon",
+      timestamp: readingObj.timestamp || new Date().toISOString(),
+      source: (readingObj.source || "SIMULATED") as "HARDWARE" | "SIMULATED" | "DEMONSTRATION" | "HISTORICAL",
       data_status: "LIVE" as const,
       scenario: scenarioKey,
       aqi,

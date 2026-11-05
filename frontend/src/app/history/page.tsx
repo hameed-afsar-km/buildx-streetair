@@ -96,7 +96,7 @@ export default function HistoryPage() {
           </div>
           <p className="text-slate-600 dark:text-slate-300">
             Observations consistently reflect two distinct daily peaks:
-            a morning rush hour peak (08:00–10:30 AM) driven by commuter diesel traffic along GST Road,
+            a morning rush hour peak (08:00-10:30 AM) driven by commuter diesel traffic along GST Road,
             followed by convective boundary-layer expansion and sea-breeze dispersion during afternoon hours.
             A secondary evening inversion peak occurs between 18:30 and 21:00.
           </p>

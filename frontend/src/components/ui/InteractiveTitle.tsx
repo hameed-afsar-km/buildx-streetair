@@ -37,15 +37,15 @@ export const InteractiveTitle: React.FC = () => {
                 scale: isHovered ? 1.08 : 1,
               }}
               transition={{ type: "spring", stiffness: 450, damping: 22 }}
-              className="inline-block transition-transform duration-150"
+              className="inline-block transition-transform duration-150 cursor-pointer"
             >
               {char}
             </motion.span>
           );
         })}
 
-        {/* AIR - Continuous Theme Gradient Looping Animation */}
-        <span className="gradient-air inline-flex ml-[0.02em]">
+        {/* AIR - Continuous Theme Gradient with robust per-letter background-clip */}
+        <span className="inline-flex ml-[0.02em]">
           {airLetters.map((char, i) => {
             const index = 6 + i;
             const isHovered = hoveredLetter === index;
@@ -60,12 +60,9 @@ export const InteractiveTitle: React.FC = () => {
                 animate={{
                   y: isHovered ? -12 : isNeighbor ? -5 : 0,
                   scale: isHovered ? 1.08 : 1,
-                  filter: isHovered
-                    ? "drop-shadow(0 0 24px rgba(16, 185, 129, 0.75))"
-                    : "none",
                 }}
                 transition={{ type: "spring", stiffness: 450, damping: 22 }}
-                className="inline-block transition-transform duration-150"
+                className="gradient-air inline-block transition-transform duration-150 cursor-pointer"
               >
                 {char}
               </motion.span>

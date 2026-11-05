@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { getAnalyticsOverview, getAnalyticsTrends, getStations } from "@/lib/api/endpoints";
@@ -82,7 +82,10 @@ export default function AdminAnalyticsPage() {
               const averageAqi =
                 raw.average_aqi ??
                 (aqiList.length > 0 ? Math.round(aqiList.reduce((a: number, b: number) => a + b, 0) / aqiList.length) : 68);
-              const complianceRate = raw.compliance_rate_pct ?? 94.2;
+              const complianceRate =
+                typeof raw?.compliance_rate_pct === "number" && !isNaN(raw.compliance_rate_pct)
+                  ? raw.compliance_rate_pct
+                  : 94.2;
               const activeAlerts = raw.active_alerts_count ?? raw.active_alerts ?? 0;
               const monitoredPop = raw.monitored_population ?? 240000;
               const category = raw.overall_category ?? (averageAqi > 100 ? "Moderate" : "Good");

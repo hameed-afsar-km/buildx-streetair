@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { TAMIL_NADU_60_STATIONS, ExtendedStation } from "@/lib/stationsData";
 import {
   Bot,
   Send,
@@ -13,6 +14,9 @@ import {
   ExternalLink,
   Search,
   Sparkles,
+  MapPin,
+  Navigation,
+  Compass,
 } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -69,7 +73,7 @@ const TAVILY_MOCK_SOURCES: SearchSource[] = [
     domain: "tnpcb.gov.in",
     date: "Today, 05:30 IST",
     snippet:
-      "Tamil Nadu Pollution Control Board warns of seasonal temperature inversion in Vandalur-Tambaram corridor. Heavy diesel truck rerouting recommended during 18:00–21:00 peak hours.",
+      "Tamil Nadu Pollution Control Board warns of seasonal temperature inversion in Vandalur-Tambaram corridor. Heavy diesel truck rerouting recommended during 18:00-21:00 peak hours.",
   },
   {
     title: "Google News / The Hindu: Kilambakkam Bus Terminus Traffic & Particulate Advisory",
@@ -87,7 +91,14 @@ const TAVILY_MOCK_SOURCES: SearchSource[] = [
   },
 ];
 
-function getMockResponse(query: string): { content: string; isWebSearch?: boolean; searchSources?: SearchSource[] } {
+function getMockResponse(query: string, station?: ExtendedStation): { content: string; isWebSearch?: boolean; searchSources?: SearchSource[] } {
+  const currentStation = station || TAMIL_NADU_60_STATIONS[0];
+  const stationName = currentStation.name;
+  const locationName = currentStation.location_name;
+  const aqi = currentStation.aqi;
+  const category = currentStation.category;
+  const dominant = currentStation.dominant_pollutant || "PM2.5";
+  const coords = `${currentStation.coordinates.lat.toFixed(4)}°N, ${currentStation.coordinates.lng.toFixed(4)}°E`;
   const q = query.toLowerCase();
 
   // Web search / Tavily trigger
@@ -110,7 +121,7 @@ function getMockResponse(query: string): { content: string; isWebSearch?: boolea
   if (q.includes("aqi") || q.includes("air quality index")) {
     return {
       content:
-        "The current Air Quality Index reading is **68 (Moderate)** at Vandalur campus station. PM2.5 is the dominant pollutant at **28 μg/m³**, slightly elevated above the 24-hour CPCB standard of 60 μg/m³. I recommend monitoring for the evening inversion period (18:30–21:00 IST) when readings typically spike.",
+        `Current Telemetry at **${stationName}** (${locationName}):\n\n• **Current AQI**: **${aqi} (${category})**\n• **Dominant Criteria Pollutant**: **${dominant}**\n• **Coordinates**: [${coords}]\n• **Distance from Crescent Epicenter**: [${currentStation.distance_km} km]\n• **Status**: [${currentStation.status.toUpperCase()}] (${currentStation.is_hardware_connected ? "Live Hardware ESP32 Beacon" : "Mesh Telemetry Node"})\n\nBased on CPCB ambient guidelines, air quality at this location is **${category}**. Sensitive groups should limit prolonged outdoor exertion during evening rush hours.`,
     };
   }
   if (q.includes("incident") || q.includes("anomaly") || q.includes("spike")) {
@@ -128,13 +139,13 @@ function getMockResponse(query: string): { content: string; isWebSearch?: boolea
   if (q.includes("traffic") || q.includes("vehicle") || q.includes("emission")) {
     return {
       content:
-        "Traffic emission analysis shows **vehicular sources contribute ~62%** of total PM2.5 load at Vandalur corridor. Peak emission windows: 08:00–10:00 (morning rush) and 18:00–21:00 (evening congestion). Heavy diesel vehicles on GST Road are the primary contributor based on elemental carbon ratio matching.",
+        "Traffic emission analysis shows **vehicular sources contribute ~62%** of total PM2.5 load at Vandalur corridor. Peak emission windows: 08:00-10:00 (morning rush) and 18:00-21:00 (evening congestion). Heavy diesel vehicles on GST Road are the primary contributor based on elemental carbon ratio matching.",
     };
   }
   if (q.includes("esp32") || q.includes("crescent") || q.includes("hardware") || q.includes("sensor")) {
     return {
       content:
-        "The **ESP32 hardware node** at B.S. Abdur Rahman Crescent Institute of Science and Technology (Vandalur) is **online and transmitting**. Latest reading: AQI 72, PM2.5 34.2 μg/m³, temperature 29.4°C, humidity 68%. Signal strength: -62 dBm. Last packet received: just now.",
+        "The **ESP32 hardware master node** (and surrounding 60-station Tamil Nadu mesh) is **online and transmitting telemetry**. Latest reading: AQI 72, PM2.5 34.2 μg/m³, temperature 29.4°C, humidity 68%. Signal strength: -62 dBm. Last packet received: just now.",
     };
   }
   return {
@@ -321,10 +332,32 @@ export default function AIChatPage() {
   const [isSearchingWeb, setIsSearchingWeb] = useState(false);
   const [searchStepText, setSearchStepText] = useState("");
 
-  // Model selection state — defaults to GPT OSS 120B (Groq) & Qwen 2.5 1.5B (Ollama)
+  // Model selection state - defaults to GPT OSS 120B (Groq) & Qwen 2.5 1.5B (Ollama)
   const [provider, setProvider] = useState<ModelProvider>("groq");
   const [groqModel, setGroqModel] = useState("gpt-oss-120b");
   const [ollamaModel, setOllamaModel] = useState("qwen2.5:1.5b");
+
+  // Active Station/Location Selection
+  const [selectedStationId, setSelectedStationId] = useState<string>("crescent-vandalur-01");
+  const [locSearch, setLocSearch] = useState("");
+  const [locDropdownOpen, setLocDropdownOpen] = useState(false);
+
+  const selectedStation =
+    TAMIL_NADU_60_STATIONS.find((s) => s.id === selectedStationId) || TAMIL_NADU_60_STATIONS[0];
+
+  const handleSelectLocation = (st: ExtendedStation) => {
+    setSelectedStationId(st.id);
+    setLocDropdownOpen(false);
+    // Add a system notification message into the chat
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: `📍 **Location Context Updated: ${st.name}**\n• **Locality**: ${st.location_name}, ${st.city}\n• **Current AQI**: **${st.aqi} (${st.category})** · Dominant: ${st.dominant_pollutant}\n• **Coordinates**: [${st.coordinates.lat.toFixed(4)}°N, ${st.coordinates.lng.toFixed(4)}°E] (${st.distance_km} km from Crescent epicenter)\n\nYou can now ask questions specifically about air quality, traffic dispersion, or health advisories for this locality.`,
+        timestamp: formatTimestamp(),
+      },
+    ]);
+  };
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -571,6 +604,45 @@ export default function AIChatPage() {
             ollamaModel={ollamaModel}
             setOllamaModel={setOllamaModel}
           />
+
+          {/* Quick Location Selector Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1 flex-shrink-0">
+              <Compass className="w-3.5 h-3.5 text-emerald-500" />
+              Location:
+            </span>
+            {[
+              { id: "crescent-vandalur-01", label: "Crescent Campus" },
+              { id: "kilambakkam-terminal-02", label: "Kilambakkam KCBT" },
+              { id: "tambaram-hub-06", label: "Tambaram Railway Hub" },
+              { id: "guindy-industrial-11", label: "Guindy Industrial" },
+              { id: "oragadam-auto-26", label: "Oragadam Corridor" },
+              { id: "coimbatore-gandhipuram-46", label: "Coimbatore Hub" },
+            ].map((loc) => {
+              const st = TAMIL_NADU_60_STATIONS.find((s) => s.id === loc.id);
+              const isSelected = selectedStationId === loc.id;
+              return (
+                <button
+                  key={loc.id}
+                  type="button"
+                  onClick={() => st && handleSelectLocation(st)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs transition border font-medium ${
+                    isSelected
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-emerald-500"
+                  }`}
+                >
+                  <MapPin className="w-3 h-3" />
+                  <span>{loc.label}</span>
+                  {st && (
+                    <span className={`text-[10px] font-mono ${isSelected ? "text-emerald-100" : "text-slate-400"}`}>
+                      {st.aqi}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
           {/* Quick Prompt Pills */}
           <div className="flex flex-wrap gap-2">

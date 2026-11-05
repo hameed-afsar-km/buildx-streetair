@@ -16,6 +16,13 @@ export default function MapPage() {
 
   useEffect(() => {
     getStations().then(setStations);
+    const handleUpdate = () => {
+      getStations().then(setStations);
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("streetair:scenario_changed", handleUpdate);
+      return () => window.removeEventListener("streetair:scenario_changed", handleUpdate);
+    }
   }, []);
 
   const filteredStations = stations.filter((s) => {

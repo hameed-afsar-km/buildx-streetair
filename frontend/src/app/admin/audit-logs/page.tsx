@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
-import { Terminal, Download, Filter, Search, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Terminal, Download, Filter, Search, ShieldAlert, CheckCircle2, Info } from "lucide-react";
 
 interface AuditLogEntry {
   id: string;
@@ -198,7 +198,7 @@ export default function AdminAuditLogsPage() {
 
       {/* Notice Banner */}
       <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-300">
-        â„¹ï¸ <strong>Compliance Integrity:</strong> All audit logs are signed with SHA-256 digests and streamed to an append-only write store for ISO 27001 & CPCB data validation.
+        <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 inline mr-1.5 -mt-0.5" />  <strong>Compliance Integrity:</strong> All audit logs are signed with SHA-256 digests and streamed to an append-only write store for ISO 27001 & CPCB data validation.
       </div>
 
       {/* Filter and Search Bar */}

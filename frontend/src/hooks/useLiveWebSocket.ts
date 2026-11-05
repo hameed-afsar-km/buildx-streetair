@@ -60,9 +60,22 @@ export function useLiveWebSocket({
       }
     });
 
+    const handleScenarioEvent = () => {
+      getLatestReading(deviceId).then((r) => {
+        setReading(r);
+        setLastUpdateTime(new Date());
+      });
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("streetair:scenario_changed", handleScenarioEvent);
+    }
+
     return () => {
       removeStatusListener();
       removeMessageListener();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("streetair:scenario_changed", handleScenarioEvent);
+      }
     };
   }, [deviceId, autoConnect]);
 

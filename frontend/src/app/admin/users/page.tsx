@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { MetricCard } from "@/components/ui/MetricCard";
-import { UserCheck, Search, Filter, ShieldCheck, ShieldAlert, User, MoreVertical } from "lucide-react";
+import { UserCheck, Search, Filter, ShieldCheck, ShieldAlert, User, MoreVertical, Info } from "lucide-react";
 
 interface UserRow {
   id: string;
@@ -135,7 +135,7 @@ export default function AdminUsersPage() {
 
       {/* Notice Banner */}
       <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-300">
-        â„¹ï¸ <strong>RBAC Policy:</strong> Role elevation to Platform Administrator requires hardware security key MFA verification per platform policy.
+        <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 inline mr-1.5 -mt-0.5" />  <strong>RBAC Policy:</strong> Role elevation to Platform Administrator requires hardware security key MFA verification per platform policy.
       </div>
 
       {/* Metrics Row */}
@@ -184,7 +184,7 @@ export default function AdminUsersPage() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
+            className="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-800 dark:text-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-xs cursor-pointer font-medium"
           >
             <option value="all">All Roles</option>
             <option value="platform_admin">Platform Admin</option>

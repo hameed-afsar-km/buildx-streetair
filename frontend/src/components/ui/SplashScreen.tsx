@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SplashScreenProps {
@@ -9,12 +9,36 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [phase, setPhase] = useState<"fadein" | "split" | "done">("fadein");
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
+  const hasRun = useRef(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("split"), 1200);
-    const t2 = setTimeout(() => { setPhase("done"); onComplete(); }, 2200);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [onComplete]);
+    // Strict once guard — prevents double-triggering on re-render / strict mode
+    if (hasRun.current) return;
+    hasRun.current = true;
+
+    // Check session storage so it never plays twice in the same browser session
+    if (typeof window !== "undefined" && sessionStorage.getItem("streetair_splash_played")) {
+      setPhase("done");
+      onCompleteRef.current?.();
+      return;
+    }
+
+    const t1 = setTimeout(() => setPhase("split"), 1100);
+    const t2 = setTimeout(() => {
+      setPhase("done");
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("streetair_splash_played", "true");
+      }
+      onCompleteRef.current?.();
+    }, 2050);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, []);
 
   if (phase === "done") return null;
 
