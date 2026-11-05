@@ -79,6 +79,7 @@ export function PublicHeader({
     { label: "Trends", href: "/history", icon: TrendingUp },
     { label: "Alerts", href: "/alerts", icon: Bell },
     { label: "Predictions", href: "/dashboard/predictions", icon: LineChart },
+    { label: "AI Assistant", href: "/chat", icon: Sparkles },
     { label: "About", href: "/contact", icon: Wind },
   ];
 

@@ -20,6 +20,7 @@ import {
   Compass,
 } from "lucide-react";
 import { NeighborhoodMeshScanner } from "@/components/dashboard/NeighborhoodMeshScanner";
+import { broadcastCitizenReport } from "@/lib/citizenReportBroadcast";
 
 interface MapSettingsDockProps {
   showHeatmap: boolean;
@@ -101,9 +102,23 @@ export function MapSettingsDock({
         })
       );
     }
-    // If selecting an elevated scenario, auto-open the neighborhood scanning simulation
+    // If selecting an elevated scenario, auto-open the neighborhood scanning simulation and broadcast to admin dashboard
     if (scenarioKey !== "scenario_1_normal") {
       setShowMeshScanner(true);
+      const scObj = SCENARIOS.find((s) => s.key === scenarioKey);
+      if (scObj) {
+        broadcastCitizenReport({
+          id: `sim-sc-${Date.now()}`,
+          category: scObj.key.replace("scenario_", ""),
+          categoryLabel: `Simulated Hazard: ${scObj.label}`,
+          address: "Crescent Campus - Vandalur Corridor (Simulation)",
+          description: scObj.desc,
+          timestamp: new Date().toISOString(),
+          severity: scObj.aqi > 250 ? "critical" : scObj.aqi > 140 ? "high" : "medium",
+          reporterName: "Public Dashboard Simulator",
+          isSimulation: true,
+        });
+      }
     }
   };
 

@@ -7,6 +7,11 @@ import { PublicFooter } from "@/components/layout/PublicFooter";
 import { ReportCategory } from "@/lib/types";
 import { createReport } from "@/lib/api/endpoints";
 import {
+  broadcastCitizenReport,
+  categorySeverity,
+  CATEGORY_LABELS,
+} from "@/lib/citizenReportBroadcast";
+import {
   FileWarning,
   MapPin,
   CheckCircle2,
@@ -73,6 +78,7 @@ export default function PublicReportPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    let reportId = "";
     try {
       const result = await createReport({
         category,
@@ -80,12 +86,26 @@ export default function PublicReportPage() {
         location: { lat: 12.8795, lng: 80.083 },
         description,
       });
+      reportId = result.id;
       setSubmittedId(result.id);
     } catch {
       // Fallback ID if mock backend
-      setSubmittedId(`rep-${Date.now().toString().slice(-6)}`);
+      reportId = `rep-${Date.now().toString().slice(-6)}`;
+      setSubmittedId(reportId);
     } finally {
       setIsSubmitting(false);
+      // Broadcast to admin dashboard cross-tab in real-time
+      broadcastCitizenReport({
+        id: reportId,
+        category,
+        categoryLabel: CATEGORY_LABELS[category] ?? category,
+        address,
+        description,
+        timestamp: new Date().toISOString(),
+        severity: categorySeverity(category),
+        reporterName: userName || "Anonymous Citizen",
+        isSimulation: false,
+      });
     }
   };
 

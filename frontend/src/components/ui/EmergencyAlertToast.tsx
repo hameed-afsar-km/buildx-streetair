@@ -51,7 +51,7 @@ export function EmergencyAlertToast({
   if (dismissed || !visible) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[min(540px,calc(100vw-2rem))] select-none animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div className="fixed bottom-18 sm:bottom-20 left-1/2 -translate-x-1/2 z-40 w-[min(540px,calc(100vw-2rem))] select-none animate-in slide-in-from-bottom-5 fade-in duration-300">
       <div
         className={`overflow-hidden rounded-2xl border shadow-2xl backdrop-blur-xl transition-all ${
           isElevated

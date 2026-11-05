@@ -27,6 +27,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { setActiveMockScenario } from "@/lib/api/mockAdapter";
+import { broadcastCitizenReport } from "@/lib/citizenReportBroadcast";
 import type { ScenarioKey } from "@/lib/types";
 
 // ─── Constants (matches hardware/code/code.ino) ────────────────────────────────
@@ -459,6 +460,19 @@ export function ESP32LiveWidget({ compact = false, onAlert }: ESP32LiveWidgetPro
           setActiveAlert(newAlert);
           onAlert?.(newAlert);
           setTimeout(() => setActiveAlert((a) => (a?.id === newAlert.id ? null : a)), 10000);
+
+          // Broadcast instantly to admin dashboard as simulated hardware spike
+          broadcastCitizenReport({
+            id: `sim-esp32-${Date.now()}`,
+            category: targetScenario.id,
+            categoryLabel: `Hardware Telemetry Surge: ${targetScenario.shortName}`,
+            address: "B.S. Abdur Rahman Crescent Institute, GST Road",
+            description: targetScenario.description,
+            timestamp: new Date().toISOString(),
+            severity: aqi > 300 ? "critical" : aqi > 200 ? "high" : "medium",
+            reporterName: `ESP32 Key ${key} Simulation`,
+            isSimulation: true,
+          });
         }
 
         // Show sending status on LCD then transmit

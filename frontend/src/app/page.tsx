@@ -256,6 +256,7 @@ export default function LandingPage() {
           {
             title: "Intelligence",
             links: [
+              { label: "AURA Citizen AI", href: "/chat" },
               { label: "AQI Predictions", href: "/dashboard/predictions" },
               { label: "Report Incident", href: "/report" },
               { label: "Historical Trends", href: "/history" },
@@ -266,7 +267,7 @@ export default function LandingPage() {
             title: "Platform",
             links: [
               { label: "Admin Console", href: "/admin" },
-              { label: "AURA Assistant", href: "/admin/intelligence/chat" },
+              { label: "Operations AI Suite", href: "/admin/intelligence/chat" },
               { label: "System Health", href: "/admin/ai" },
               { label: "Research Inquiries", href: "/contact" },
             ],
