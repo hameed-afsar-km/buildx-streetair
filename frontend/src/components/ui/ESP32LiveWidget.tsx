@@ -345,6 +345,7 @@ export function ESP32LiveWidget({ compact = false, onAlert }: ESP32LiveWidgetPro
   const [tempLcdMessage, setTempLcdMessage] = useState<{ line0: string; line1: string } | null>(null);
   const [online, setOnline] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [mounted, setMounted] = useState(false);
   const [pulse, setPulse] = useState(false);
   const [ingestStatus, setIngestStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
   const [txCount, setTxCount] = useState(0);
@@ -505,6 +506,10 @@ export function ESP32LiveWidget({ compact = false, onAlert }: ESP32LiveWidgetPro
     },
     [onAlert, showTempMessage, transmitData]
   );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // LCD 5-Second Screen Rotation (matches SCREEN_CYCLE_INTERVAL_MS in code.ino)
   useEffect(() => {
@@ -713,7 +718,9 @@ export function ESP32LiveWidget({ compact = false, onAlert }: ESP32LiveWidgetPro
 
         <div className="flex items-center gap-2 text-slate-400">
           <Clock className="w-3.5 h-3.5" />
-          <span>Last Telemetry: {lastUpdated.toLocaleTimeString("en-IN")} IST</span>
+          <span suppressHydrationWarning>
+            Last Telemetry: {mounted ? `${lastUpdated.toLocaleTimeString("en-IN")} IST` : "--:--:-- IST"}
+          </span>
         </div>
       </div>
     </div>

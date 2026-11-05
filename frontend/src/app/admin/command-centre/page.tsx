@@ -231,7 +231,7 @@ export default function AdminCommandCentrePage() {
                     <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded-full border ${severityColor(a.severity)}`}>
                       {a.severity}
                     </span>
-                    <span className="text-[10px] font-mono text-slate-400 ml-auto">
+                    <span className="text-[10px] font-mono text-slate-400 ml-auto" suppressHydrationWarning>
                       {a.timestamp.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} IST
                     </span>
                   </div>

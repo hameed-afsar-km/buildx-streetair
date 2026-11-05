@@ -177,7 +177,7 @@ export function CitizenReportToast() {
 
               {/* Footer */}
               <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
-                <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+                <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1" suppressHydrationWarning>
                   <Clock className="w-3 h-3" />
                   {timeAgo} IST
                   {report.reporterName && (
