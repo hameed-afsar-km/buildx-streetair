@@ -68,13 +68,12 @@ const stages = [
 ];
 
 export default function LandingPage() {
-  const [, setSplashFinished] = useState(false);
   const { navigateWithReveal, Overlay } = useDashboardTransition();
 
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans overflow-x-hidden selection:bg-emerald-100 selection:text-emerald-900">
       {Overlay}
-      <SplashScreen onComplete={() => setSplashFinished(true)} />
+      <SplashScreen />
       <PillNavbar />
 
       {/* ── HERO ─────────────────────────────────────────────────────── */}

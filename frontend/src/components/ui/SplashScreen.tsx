@@ -4,61 +4,58 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SplashScreenProps {
-  onComplete: () => void;
+  onComplete?: () => void;
 }
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
   const [phase, setPhase] = useState<"fadein" | "split" | "done">("fadein");
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
-  const hasRun = useRef(false);
 
   useEffect(() => {
-    // Strict once guard — prevents double-triggering on re-render / strict mode
-    if (hasRun.current) return;
-    hasRun.current = true;
-
-    // Check session storage so it never plays twice in the same browser session
-    if (typeof window !== "undefined" && sessionStorage.getItem("streetair_splash_played")) {
-      setPhase("done");
-      onCompleteRef.current?.();
-      return;
+    // Clean up any legacy sessionStorage flag
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("streetair_splash_played");
+      }
+    } catch {
+      // Ignore
     }
 
-    const t1 = setTimeout(() => setPhase("split"), 1100);
+    const t1 = setTimeout(() => {
+      setPhase("split");
+    }, 1100);
+
     const t2 = setTimeout(() => {
       setPhase("done");
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("streetair_splash_played", "true");
-      }
       onCompleteRef.current?.();
-    }, 2050);
+    }, 2100);
 
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, []);
+  }, []); // Empty array ensures it runs exactly once per page load and never duplicates on parent re-renders
 
   if (phase === "done") return null;
 
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-[100] pointer-events-none overflow-hidden">
-        {/* 8 vertical panels — white, lifting up */}
+        {/* 8 vertical panels — white, lifting up sequentially */}
         <div className="absolute inset-0 grid grid-cols-8 w-full h-full">
           {Array.from({ length: 8 }).map((_, i) => (
             <motion.div
               key={i}
               initial={{ y: 0 }}
               animate={phase === "split" ? { y: "-100%" } : { y: 0 }}
-              transition={{ duration: 0.85, delay: i * 0.055, ease: [0.65, 0, 0.35, 1] }}
+              transition={{ duration: 0.85, delay: i * 0.05, ease: [0.65, 0, 0.35, 1] }}
               className="h-full bg-white border-r border-slate-100"
             />
           ))}
         </div>
 
-        {/* Center: STREETAIR wordmark only */}
+        {/* Center: STREETAIR wordmark */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -67,7 +64,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
                 ? { opacity: 1, y: 0 }
                 : { opacity: 0, y: -16 }
             }
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
             className="text-center"
           >
             <h1 className="font-sans font-bold text-3xl sm:text-4xl tracking-[0.22em] uppercase text-slate-900">

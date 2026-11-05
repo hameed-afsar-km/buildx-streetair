@@ -32,6 +32,9 @@ export function NeighborhoodMeshScanner({ originAqi = 72 }: { originAqi?: number
   const [agreementScore, setAgreementScore] = useState<number>(89);
   const [triggerSource, setTriggerSource] = useState<string>("Keypad Hardware Event");
 
+  // Ref to track the active scan interval — allows safe cancellation before starting a new scan
+  const scanIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // Closest 8 neighboring stations to Crescent Institute (sorted by distance)
   const neighbors = useRef(
     TAMIL_NADU_60_STATIONS.filter((s) => s.id !== "crescent-vandalur-01")
@@ -42,12 +45,18 @@ export function NeighborhoodMeshScanner({ originAqi = 72 }: { originAqi?: number
   // Run the multi-node spatial scan simulation
   const runMeshScan = useCallback(
     (reason = "Manual Diagnostic Scan", baselineAqi = originAqi) => {
+      // Cancel any in-progress scan interval before starting a fresh one
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+
       setIsScanning(true);
       setScanStep(0);
       setTriggerSource(reason);
 
       // Initialize all nodes in pending/scanning state
-      const initialNodes: ScannedNode[] = neighbors.map((st, i) => {
+      const initialNodes: ScannedNode[] = neighbors.map((st) => {
         // Compute realistic correlated AQI based on distance & origin spike
         const decayFactor = Math.max(0.4, 1 - st.distance_km / 25);
         const correlatedAqi = Math.round(
@@ -75,30 +84,41 @@ export function NeighborhoodMeshScanner({ originAqi = 72 }: { originAqi?: number
         };
       });
 
+      // Clear the list immediately so no stale nodes from prior scan remain
       setScannedNodes([]);
 
-      // Step-by-step triangulation
+      // Step-by-step triangulation — stored in ref so it can be cancelled
       let currentIdx = 0;
       const interval = setInterval(() => {
         if (currentIdx < initialNodes.length) {
           const nextNode = initialNodes[currentIdx];
-          setScannedNodes((prev) => [...prev, nextNode]);
+          // Replace entire array to avoid any stale accumulation race conditions
+          setScannedNodes(initialNodes.slice(0, currentIdx + 1));
           setScanStep(currentIdx + 1);
           currentIdx++;
         } else {
           clearInterval(interval);
+          scanIntervalRef.current = null;
           setIsScanning(false);
           setLastScanTime(new Date());
           setAgreementScore(baselineAqi > 100 ? 92 : 87);
         }
       }, 350);
+
+      scanIntervalRef.current = interval;
     },
     [neighbors, originAqi]
   );
 
-  // Auto-run on first load
+  // Auto-run on first load; cleanup interval on unmount
   useEffect(() => {
     runMeshScan("Initial System Triangulation", originAqi);
+    return () => {
+      if (scanIntervalRef.current) {
+        clearInterval(scanIntervalRef.current);
+        scanIntervalRef.current = null;
+      }
+    };
   }, []);
 
   // Listen for ESP32 Keypad events
@@ -207,7 +227,8 @@ export function NeighborhoodMeshScanner({ originAqi = 72 }: { originAqi?: number
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-          {scannedNodes.map((item, idx) => {
+          {/* Deduplicate by station ID to guard against interval overlap race conditions */}
+          {Array.from(new Map(scannedNodes.map((item) => [item.station.id, item])).values()).map((item) => {
             const st = item.station;
             const aqi = item.measuredAqi;
             const isAlert = item.status === "alert";
