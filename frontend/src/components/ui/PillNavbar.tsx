@@ -9,7 +9,7 @@ import { useDashboardTransition } from "@/components/ui/DashboardTransition";
 const NAV_LINKS = [
   { label: "About", href: "#about" },
   { label: "Pollution Map", href: "/map" },
-  { label: "AI Assistant", href: "/intelligence/chat" },
+  { label: "Air guidance", href: "/dashboard#air-guide" },
 ];
 
 export const PillNavbar: React.FC = () => {

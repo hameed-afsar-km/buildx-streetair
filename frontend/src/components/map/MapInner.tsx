@@ -15,6 +15,8 @@ interface MapInnerProps {
   center?: [number, number];
   zoom?: number;
   heatmapIntensity?: number;
+  showControls?: boolean;
+  showLegend?: boolean;
 }
 
 export function MapInner({
@@ -24,6 +26,8 @@ export function MapInner({
   center = [12.8797, 80.0833], // B.S. Abdur Rahman Crescent Institute, Vandalur
   zoom = 13,
   heatmapIntensity,
+  showControls = true,
+  showLegend = true,
 }: MapInnerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -48,17 +52,22 @@ export function MapInner({
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors | STREETAIR Telemetry Grid',
-      maxZoom: 18,
+      maxZoom: 19,
     }).addTo(map);
 
-    L.control.zoom({ position: "bottomright" }).addTo(map);
+    // Zoom controls at bottom right
+    L.control
+      .zoom({
+        position: "bottomright",
+      })
+      .addTo(map);
 
     const markersGroup = L.layerGroup().addTo(map);
     const heatmapGroup = L.layerGroup().addTo(map);
 
-    mapInstanceRef.current = map;
     markersLayerRef.current = markersGroup;
     heatmapLayerRef.current = heatmapGroup;
+    mapInstanceRef.current = map;
 
     return () => {
       map.remove();
@@ -66,9 +75,9 @@ export function MapInner({
     };
   }, [center, zoom]);
 
-  // Sync selected station from prop
+  // Handle selectedStationId changes from parent
   useEffect(() => {
-    if (selectedStationId) {
+    if (selectedStationId && stations.length > 0) {
       const match = stations.find((s) => s.id === selectedStationId);
       if (match) setSelectedStation(match);
     }
@@ -86,17 +95,15 @@ export function MapInner({
 
       // Estimated Heatmap Interpolation Layer (Gaussian radius)
       if (showHeatmap) {
-        // Radius based on AQI intensity
         const displayedAqi = st.id === selectedStationId && heatmapIntensity !== undefined ? heatmapIntensity : st.aqi;
-        const radius = Math.min(2200, 800 + displayedAqi * 4);
         const circle = L.circle([st.coordinates.lat, st.coordinates.lng], {
           color: "transparent",
-          fillColor: getAQIColor(displayedAqi),
-          fillOpacity: 0.3,
-          radius,
+          fillColor: color,
+          fillOpacity: 0.28,
+          radius: 2200, // 2.2km radius for local dispersion surface
         });
         circle.bindTooltip(
-          `<strong>${st.name}</strong><br/>Interpolated AQI Dispersion: ~${st.aqi} (Estimated)`,
+          `<strong>${st.name}</strong><br/>Estimated Dispersion AQI: ${displayedAqi}`,
           { direction: "top" }
         );
         heatmapLayerRef.current?.addLayer(circle);
@@ -142,46 +149,48 @@ export function MapInner({
       {/* Map DOM node */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px]" />
 
-      {/* Layer Controls Pill */}
-      <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md text-xs font-semibold">
-        <Layers className="w-3.5 h-3.5 text-slate-500" />
-        <span className="text-slate-700 dark:text-slate-300 mr-1">Layers:</span>
+      {/* Layer Controls Pill (Optional) */}
+      {showControls && (
+        <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-md text-xs font-semibold">
+          <Layers className="w-3.5 h-3.5 text-slate-500" />
+          <span className="text-slate-700 dark:text-slate-300 mr-1">Layers:</span>
 
-        <button
-          type="button"
-          onClick={() => setShowStations(!showStations)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-md transition ${
-            showStations
-              ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-          }`}
-        >
-          <Eye className="w-3 h-3" />
-          <span>Stations</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setShowStations(!showStations)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition ${
+              showStations
+                ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+            }`}
+          >
+            <Eye className="w-3 h-3" />
+            <span>Stations</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setShowHeatmap(!showHeatmap)}
-          className={`flex items-center gap-1 px-2 py-1 rounded-md transition ${
-            showHeatmap
-              ? "bg-purple-600 text-white"
-              : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-          }`}
-          title="Localized spatial interpolation (Estimated)"
-        >
-          <span>Heatmap (Est.)</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setShowHeatmap(!showHeatmap)}
+            className={`flex items-center gap-1 px-2 py-1 rounded-md transition ${
+              showHeatmap
+                ? "bg-purple-600 text-white"
+                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+            }`}
+            title="Localized spatial interpolation (Estimated)"
+          >
+            <span>Heatmap (Est.)</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={handleResetView}
-          className="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-          title="Recenter Map to Vandalur Campus"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={handleResetView}
+            className="p-1 rounded-md text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+            title="Recenter Map to Vandalur Campus"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Selected Station Drawer */}
       <StationDetailDrawer
@@ -189,11 +198,12 @@ export function MapInner({
         onClose={() => setSelectedStation(null)}
       />
 
-      {/* Map Legend (Bottom Left) */}
-      <div className="absolute bottom-6 left-4 z-20 max-w-xs">
-        <MapLegend />
-      </div>
+      {/* Map Legend (Bottom Left) (Optional) */}
+      {showLegend && (
+        <div className="absolute bottom-6 left-4 z-20 max-w-xs">
+          <MapLegend />
+        </div>
+      )}
     </div>
   );
 }
-

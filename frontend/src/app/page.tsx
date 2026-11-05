@@ -23,6 +23,7 @@ import { SplashScreen } from "@/components/ui/SplashScreen";
 import { InteractiveTitle } from "@/components/ui/InteractiveTitle";
 import { PillNavbar } from "@/components/ui/PillNavbar";
 import { useDashboardTransition } from "@/components/ui/DashboardTransition";
+import HalftoneWordmarkFooter from "@/components/ui/halftone-wordmark-footer";
 
 const stages = [
   {
@@ -257,47 +258,52 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── FOOTER ───────────────────────────────────────────────────── */}
-      <footer className="bg-white border-t border-slate-200 pt-10 pb-8">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-8 border-b border-slate-100">
-            <div>
-              <span className="font-sans font-bold text-sm tracking-[0.18em] uppercase text-slate-800">
-                STREET<span className="text-emerald-600">AIR</span>
-              </span>
-              <p className="text-xs text-slate-400 mt-1">
-                Environmental Monitoring & Pollution Intelligence
-              </p>
-            </div>
-
-            <div className="flex items-center gap-6 text-xs text-slate-400">
-              <button
-                onClick={() => navigateWithReveal("/dashboard", "Public Live Dashboard")}
-                className="hover:text-emerald-600 transition-colors cursor-pointer"
-              >
-                Live Monitor
-              </button>
-              <Link href="/map" className="hover:text-emerald-600 transition-colors">
-                Pollution Map
-              </Link>
-              <Link href="/intelligence/chat" className="hover:text-emerald-600 transition-colors">
-                AI Assistant
-              </Link>
-              <button
-                onClick={() => navigateWithReveal("/admin", "Admin Command Console")}
-                className="hover:text-emerald-600 transition-colors cursor-pointer"
-              >
-                Admin
-              </button>
-            </div>
-          </div>
-
-          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
-            <p>© {new Date().getFullYear()} STREETAIR. Research deployment.</p>
-            <p>CPCB National Air Quality Standards · ESP32 IoT</p>
-          </div>
-        </div>
-      </footer>
+      {/* ── HALFTONE WORDMARK FOOTER (STREETAIR) ───────────────────────── */}
+      <HalftoneWordmarkFooter
+        wordmark="streetair"
+        label="STREETAIR"
+        meta="© 2026 · Vandalur Corridor, Chennai · Environmental Telemetry Grid"
+        palette={{
+          background: "#080d1a",
+          ink: "#e2e8f0",
+          warm: "#10b981",
+        }}
+        columns={[
+          {
+            title: "Network",
+            links: [
+              { label: "Live Overview", href: "/dashboard" },
+              { label: "Interactive Air Map", href: "/map" },
+              { label: "Station Fleet", href: "/stations" },
+              { label: "Nearby Corridors", href: "/nearby-air" },
+            ],
+          },
+          {
+            title: "Intelligence",
+            links: [
+              { label: "AQI Predictions", href: "/dashboard/predictions" },
+              { label: "Report Incident", href: "/report" },
+              { label: "Historical Trends", href: "/history" },
+              { label: "Clean Air Navigation", href: "/clean-air-navigation" },
+            ],
+          },
+          {
+            title: "Platform",
+            links: [
+              { label: "Admin Console", href: "/admin" },
+              { label: "AURA Assistant", href: "/admin/intelligence/chat" },
+              { label: "System Health", href: "/admin/ai" },
+              { label: "Research Inquiries", href: "/contact" },
+            ],
+          },
+        ]}
+        height="520px"
+        dotGap={5}
+        radius={80}
+        crop={0.18}
+        grain={0.4}
+        backToTop={true}
+      />
     </div>
   );
 }

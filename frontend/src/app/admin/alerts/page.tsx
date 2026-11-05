@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { getAlerts } from "@/lib/api/endpoints";
@@ -63,7 +63,7 @@ export default function AdminAlertsPage() {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 dark:text-white transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -72,14 +72,14 @@ export default function AdminAlertsPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black">Environmental Alert Dispatch Centre</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Real-time threshold breaches, rapid notification webhooks, SMS/Email broadcasts, and emergency dispatch actions.
           </p>
         </div>
 
         <button
           onClick={fetchAlerts}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           Refresh Triggers
@@ -115,15 +115,15 @@ export default function AdminAlertsPage() {
       </div>
 
       {/* Filters Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-400" />
-          <span className="text-xs font-semibold text-slate-300">Filters:</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Filters:</span>
           
           <select
             value={severityFilter}
             onChange={(e) => setSeverityFilter(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
+            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
           >
             <option value="all">All Severities</option>
             <option value="critical">Critical</option>
@@ -135,7 +135,7 @@ export default function AdminAlertsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
+            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
           >
             <option value="all">All Statuses</option>
             <option value="active">Active Only</option>
@@ -149,7 +149,7 @@ export default function AdminAlertsPage() {
       </div>
 
       {/* Alerts Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors/70 overflow-hidden">
         {loading ? (
           <div className="p-6 space-y-4">
             <LoadingSkeleton className="h-12 w-full rounded-xl" />
@@ -166,7 +166,7 @@ export default function AdminAlertsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-950/60 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono">
+              <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
                 <tr>
                   <th className="py-3 px-4">Alert ID & Station</th>
                   <th className="py-3 px-4">Pollutant</th>
@@ -177,21 +177,21 @@ export default function AdminAlertsPage() {
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/80">
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
                 {filtered.map((alert) => {
                   const isCritical = alert.severity === "critical";
                   const isHigh = alert.severity === "high";
 
                   return (
-                    <tr key={alert.id} className="hover:bg-slate-800/40 transition">
+                    <tr key={alert.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                       <td className="py-3 px-4">
-                        <div className="font-bold text-slate-100">{alert.title}</div>
+                        <div className="font-bold text-slate-900 dark:text-slate-100">{alert.title}</div>
                         <div className="text-[11px] text-slate-400 font-mono mt-0.5">
                           {alert.station_name} ({alert.device_id})
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <span className="font-mono font-bold text-slate-200">
+                        <span className="font-mono font-bold text-slate-800 dark:text-slate-200">
                           {alert.pollutant}
                         </span>
                       </td>
@@ -210,7 +210,7 @@ export default function AdminAlertsPage() {
                               ? "bg-rose-950 text-rose-300 border border-rose-800"
                               : isHigh
                               ? "bg-amber-950 text-amber-300 border border-amber-800"
-                              : "bg-blue-950 text-blue-300 border border-blue-800"
+                              : "bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800"
                           }`}
                         >
                           {alert.severity}
@@ -239,7 +239,7 @@ export default function AdminAlertsPage() {
                         {alert.active && (
                           <button
                             onClick={() => handleAcknowledge(alert.id)}
-                            className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700 transition"
+                            className="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 transition"
                           >
                             Acknowledge
                           </button>
@@ -266,4 +266,7 @@ export default function AdminAlertsPage() {
     </div>
   );
 }
+
+
+
 

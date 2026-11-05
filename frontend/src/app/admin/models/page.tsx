@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { MetricCard } from "@/components/ui/MetricCard";
@@ -116,7 +116,7 @@ export default function AdminModelsPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 dark:text-white transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
@@ -125,20 +125,20 @@ export default function AdminModelsPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black">AI & Predictive Model Registry</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Registered forecasting architectures, anomaly detectors, and source apportionment models serving FastAPI inference pipelines.
           </p>
         </div>
       </div>
 
       {message && (
-        <div className="p-3.5 rounded-xl bg-purple-950/70 border border-purple-800 text-xs text-purple-200 flex items-center justify-between">
+        <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/70 border border-purple-200 dark:border-purple-800 text-xs text-purple-900 dark:text-purple-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-purple-400 animate-pulse" />
             <span>{message}</span>
           </div>
           <button onClick={() => setMessage(null)} className="text-slate-400 hover:text-white">
-            ✕
+            âœ•
           </button>
         </div>
       )}
@@ -172,11 +172,11 @@ export default function AdminModelsPage() {
       </div>
 
       {/* Models Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
-        <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors/70 overflow-hidden">
+        <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <BrainCircuit className="w-4 h-4 text-purple-400" />
-            <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Production Models & Inference Endpoints
             </h2>
           </div>
@@ -185,7 +185,7 @@ export default function AdminModelsPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/60 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               <tr>
                 <th className="py-3 px-4">Model Name & Type</th>
                 <th className="py-3 px-4">Version</th>
@@ -196,11 +196,11 @@ export default function AdminModelsPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
               {models.map((model) => (
-                <tr key={model.id} className="hover:bg-slate-800/40 transition">
+                <tr key={model.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-slate-100 flex items-center gap-2">
+                    <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       <Cpu className="w-3.5 h-3.5 text-purple-400" />
                       {model.name}
                     </div>
@@ -208,10 +208,10 @@ export default function AdminModelsPage() {
                       {model.type} · <span className="italic">{model.description}</span>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-semibold text-slate-300">
+                  <td className="py-3.5 px-4 font-mono font-semibold text-slate-700 dark:text-slate-300">
                     {model.version}
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300 font-mono text-[11px]">
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 font-mono text-[11px]">
                     {model.framework}
                   </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-400">
@@ -221,10 +221,10 @@ export default function AdminModelsPage() {
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         model.status === "ACTIVE"
-                          ? "bg-emerald-950 text-emerald-300 border border-emerald-800"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
                           : model.status === "TRAINING"
                           ? "bg-amber-950 text-amber-300 border border-amber-800 animate-pulse"
-                          : "bg-slate-800 text-slate-400"
+                          : "bg-slate-100 text-slate-600 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                       }`}
                     >
                       {model.status}
@@ -237,7 +237,7 @@ export default function AdminModelsPage() {
                     <button
                       onClick={() => handleRetrain(model.id, model.name)}
                       disabled={trainingId === model.id}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700 transition disabled:opacity-50"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-[11px] font-semibold border border-slate-200 dark:border-slate-700 transition disabled:opacity-50"
                     >
                       <RotateCw
                         className={`w-3 h-3 ${trainingId === model.id ? "animate-spin" : ""}`}
@@ -254,4 +254,7 @@ export default function AdminModelsPage() {
     </div>
   );
 }
+
+
+
 

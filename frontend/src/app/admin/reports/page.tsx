@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 import { getReports } from "@/lib/api/endpoints";
@@ -23,10 +23,10 @@ export default function AdminReportsModerationPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">
             Community Report Moderation Queue
           </h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Review citizen pollution filings, corroborate with sensor signals, and dispatch municipal enforcement teams.
           </p>
         </div>
@@ -36,14 +36,14 @@ export default function AdminReportsModerationPage() {
         {reports.map((rep) => (
           <div
             key={rep.id}
-            className="rounded-2xl border border-slate-800 bg-slate-900 p-6 space-y-4 shadow-sm"
+            className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors p-6 space-y-4 shadow-sm"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
               <div>
                 <span className="text-[10px] font-mono font-bold uppercase text-red-400 block">
                   {rep.category.replace("_", " ")} &bull; Reference ID: {rep.id}
                 </span>
-                <h3 className="text-base font-bold text-white mt-0.5">
+                <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">
                   Reported by {rep.user_name} ({rep.user_email})
                 </h3>
               </div>
@@ -51,7 +51,7 @@ export default function AdminReportsModerationPage() {
               <span
                 className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase ${
                   rep.status === "verified"
-                    ? "bg-emerald-950 text-emerald-300"
+                    ? "bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
                     : rep.status === "rejected"
                     ? "bg-red-950 text-red-300"
                     : "bg-amber-950 text-amber-300"
@@ -63,7 +63,7 @@ export default function AdminReportsModerationPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
               <div className="md:col-span-2 space-y-2">
-                <p className="text-slate-200 leading-relaxed font-sans">{rep.description}</p>
+                <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-sans">{rep.description}</p>
                 <div className="flex items-center gap-1.5 text-slate-400 font-mono text-[11px]">
                   <MapPin className="w-3.5 h-3.5 text-red-400" />
                   <span>{rep.address}</span>
@@ -71,7 +71,7 @@ export default function AdminReportsModerationPage() {
               </div>
 
               {rep.image_url && (
-                <div className="relative rounded-xl overflow-hidden border border-slate-800 h-28 bg-black">
+                <div className="relative rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 h-28 bg-black">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={rep.image_url}
@@ -85,7 +85,7 @@ export default function AdminReportsModerationPage() {
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-3 border-t border-slate-800 text-xs font-mono">
+            <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800 text-xs font-mono">
               <span className="text-slate-500">Submitted: {formatDate(rep.submitted_at)}</span>
 
               {/* Action Buttons */}
@@ -114,4 +114,7 @@ export default function AdminReportsModerationPage() {
     </div>
   );
 }
+
+
+
 

@@ -7,13 +7,16 @@ export type DataStatus = "LIVE" | "STALE" | "HISTORICAL" | "FORECAST";
 
 export interface AnalyticsOverview {
   total_stations: number;
-  online_stations: number;
-  average_aqi: number;
-  overall_category: string;
-  active_alerts_count: number;
-  compliance_rate_pct: number;
-  monitored_population: number;
-  primary_concern: string;
+  online_stations?: number;
+  active_stations?: number;
+  average_aqi?: number;
+  overall_category?: string;
+  active_alerts_count?: number;
+  active_alerts?: number;
+  compliance_rate_pct?: number;
+  monitored_population?: number;
+  primary_concern?: string;
+  latest_aqi?: Record<string, { aqi: number }>;
 }
 
 export interface AnalyticsTrend {

@@ -25,7 +25,7 @@ export default function AdminHotspotsPage() {
   const [search, setSearch] = useState("");
 
   const loadData = async () => {
-    setLoading(false);
+    setLoading(true);
     try {
       const data = await getHotspots();
       setHotspots(data);
@@ -47,18 +47,20 @@ export default function AdminHotspotsPage() {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+    <div className="space-y-6 text-slate-900 dark:text-slate-100">
+      {/* Top Banner (Theme Adaptive) */}
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-400">
+            <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400">
               Spatial Clustering & Anomaly Engine
             </span>
           </div>
-          <h1 className="text-2xl font-black">Micro-Environment Hotspots & Plume Clusters</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white">
+            Micro-Environment Hotspots & Plume Clusters
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Algorithmic DBSCAN spatial clusters calculated from contiguous micro-sensor anomalies and multi-point telemetry spikes.
           </p>
         </div>
@@ -73,7 +75,7 @@ export default function AdminHotspotsPage() {
           </Link>
           <button
             onClick={loadData}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition"
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 transition"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -110,14 +112,14 @@ export default function AdminHotspotsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex items-center gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+      <div className="flex items-center gap-3 bg-white dark:bg-slate-900/60 p-3 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
         <Search className="w-4 h-4 text-slate-400 ml-2" />
         <input
           type="text"
           placeholder="Search clusters by location or source type..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="bg-transparent text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none w-full"
+          className="bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none w-full"
         />
       </div>
 
@@ -142,7 +144,7 @@ export default function AdminHotspotsPage() {
             return (
               <div
                 key={cluster.id}
-                className="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 flex flex-col justify-between hover:border-slate-700 transition"
+                className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 p-5 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-300 dark:border-slate-700 shadow-sm transition-colors"
               >
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3">
@@ -150,7 +152,7 @@ export default function AdminHotspotsPage() {
                       <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
                         {cluster.id}
                       </span>
-                      <h3 className="text-base font-bold text-white mt-0.5">{cluster.name}</h3>
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5">{cluster.name}</h3>
                     </div>
                     <span
                       className="px-2.5 py-1 rounded-full text-xs font-black font-mono shadow-sm"
@@ -164,45 +166,45 @@ export default function AdminHotspotsPage() {
                     </span>
                   </div>
 
-                  <div className="space-y-2 text-xs text-slate-300">
-                    <div className="flex items-center justify-between py-1 border-b border-slate-800/80">
+                  <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800/80">
                       <span className="text-slate-400">Category</span>
-                      <span className="font-semibold text-slate-200">{aqiClass.category}</span>
+                      <span className="font-semibold text-slate-800 dark:text-slate-200">{aqiClass.category}</span>
                     </div>
-                    <div className="flex items-center justify-between py-1 border-b border-slate-800/80">
+                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800/80">
                       <span className="text-slate-400">Cluster Radius</span>
-                      <span className="font-mono font-medium text-slate-200">
+                      <span className="font-mono font-medium text-slate-800 dark:text-slate-200">
                         {cluster.radius_meters} meters
                       </span>
                     </div>
-                    <div className="flex items-center justify-between py-1 border-b border-slate-800/80">
+                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800/80">
                       <span className="text-slate-400">Suspected Source</span>
-                      <span className="font-medium text-amber-300 capitalize">
+                      <span className="font-medium text-amber-600 dark:text-amber-300 capitalize">
                         {cluster.primary_source_type.replace(/_/g, " ")}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between py-1 border-b border-slate-800/80">
+                    <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-slate-800/80">
                       <span className="text-slate-400">Linked Incidents</span>
-                      <span className="font-mono font-medium text-slate-200">
+                      <span className="font-mono font-medium text-slate-800 dark:text-slate-200">
                         {cluster.incident_count} reports
                       </span>
                     </div>
                     <div className="flex items-center justify-between py-1">
                       <span className="text-slate-400">Coordinates</span>
-                      <span className="font-mono text-[11px] text-slate-400">
-                        {cluster.coordinates.lat.toFixed(4)}°N, {cluster.coordinates.lng.toFixed(4)}°E
+                      <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
+                        {cluster.coordinates.lat.toFixed(4)}Ã‚°N, {cluster.coordinates.lng.toFixed(4)}Ã‚°E
                       </span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-5 pt-3 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-500">
+                <div className="mt-5 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">
                     Detected: {new Date(cluster.reported_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                   <Link
                     href={`/map?lat=${cluster.coordinates.lat}&lng=${cluster.coordinates.lng}&zoom=16`}
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 transition"
                   >
                     View in Map
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -216,4 +218,5 @@ export default function AdminHotspotsPage() {
     </div>
   );
 }
+
 

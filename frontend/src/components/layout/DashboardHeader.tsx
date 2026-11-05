@@ -84,7 +84,7 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
         {user && (
           <div className="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
             <Link
-              href="/app/profile"
+              href="/admin/users"
               className="flex items-center gap-2 group"
               title={`Logged in as ${user.display_name} (${user.email})`}
             >
@@ -110,4 +110,5 @@ export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
     </header>
   );
 }
+
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { Terminal, Download, Filter, Search, ShieldAlert, CheckCircle2 } from "lucide-react";
@@ -173,7 +173,7 @@ export default function AdminAuditLogsPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 dark:text-white transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-slate-400" />
@@ -182,14 +182,14 @@ export default function AdminAuditLogsPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black">Security Audit Logs & Access Trail</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Complete cryptographic audit trail of user access, scenario injections, telemetry writes, and API authentication events.
           </p>
         </div>
 
         <button
           onClick={handleExport}
-          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 border border-slate-700 transition"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 transition"
         >
           <Download className="w-3.5 h-3.5" />
           {exported ? "Export Queued..." : "Export Audit Trail (CSV)"}
@@ -197,12 +197,12 @@ export default function AdminAuditLogsPage() {
       </div>
 
       {/* Notice Banner */}
-      <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-800 text-xs text-blue-300">
-        ℹ️ <strong>Compliance Integrity:</strong> All audit logs are signed with SHA-256 digests and streamed to an append-only write store for ISO 27001 & CPCB data validation.
+      <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-300">
+        â„¹ï¸ <strong>Compliance Integrity:</strong> All audit logs are signed with SHA-256 digests and streamed to an append-only write store for ISO 27001 & CPCB data validation.
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
         <div className="flex items-center gap-3 flex-1 min-w-[240px]">
           <Search className="w-4 h-4 text-slate-400 ml-1" />
           <input
@@ -210,7 +210,7 @@ export default function AdminAuditLogsPage() {
             placeholder="Search by actor, IP address, resource URI, or details..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none w-full font-mono"
+            className="bg-transparent text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100 focus:outline-none w-full font-mono"
           />
         </div>
 
@@ -219,7 +219,7 @@ export default function AdminAuditLogsPage() {
           <select
             value={actionFilter}
             onChange={(e) => setActionFilter(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none font-mono"
+            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none font-mono"
           >
             <option value="all">All Actions</option>
             <option value="AUTH">AUTH</option>
@@ -231,11 +231,11 @@ export default function AdminAuditLogsPage() {
       </div>
 
       {/* Terminal View Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-950 font-mono text-xs overflow-hidden shadow-2xl">
-        <div className="bg-slate-900/80 px-4 py-2.5 border-b border-slate-800 flex items-center justify-between text-slate-400">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 font-mono text-xs overflow-hidden shadow-sm">
+        <div className="bg-slate-50 dark:bg-slate-900/80 px-4 py-2.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between text-slate-500">
           <div className="flex items-center gap-2">
             <Terminal className="w-4 h-4 text-emerald-400" />
-            <span className="text-[11px] font-bold text-slate-200 uppercase tracking-wider">
+            <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
               Audit Stream /var/log/streetair/audit.log
             </span>
           </div>
@@ -244,7 +244,7 @@ export default function AdminAuditLogsPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left">
-            <thead className="bg-slate-900/40 border-b border-slate-800/80 text-slate-500 text-[10px] uppercase tracking-wider">
+            <thead className="bg-slate-50/60 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800/80 text-slate-500 text-[10px] uppercase tracking-wider">
               <tr>
                 <th className="py-2.5 px-4">Timestamp</th>
                 <th className="py-2.5 px-4">Actor</th>
@@ -255,31 +255,31 @@ export default function AdminAuditLogsPage() {
                 <th className="py-2.5 px-4">Details</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-900">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
               {filtered.map((log) => {
                 const is2xx = log.statusCode >= 200 && log.statusCode < 300;
                 const is4xx = log.statusCode >= 400 && log.statusCode < 500;
 
                 return (
-                  <tr key={log.id} className="hover:bg-slate-900/40 transition">
+                  <tr key={log.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-900/40 transition">
                     <td className="py-2.5 px-4 text-slate-400 whitespace-nowrap">{log.timestamp}</td>
-                    <td className="py-2.5 px-4 text-slate-200 font-semibold">{log.actor}</td>
+                    <td className="py-2.5 px-4 text-slate-800 dark:text-slate-200 font-semibold">{log.actor}</td>
                     <td className="py-2.5 px-4">
                       <span
                         className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                           log.action === "AUTH"
-                            ? "bg-purple-950 text-purple-300"
+                            ? "bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-950/80 dark:text-purple-300 dark:border-purple-800"
                             : log.action === "WRITE"
-                            ? "bg-blue-950 text-blue-300"
+                            ? "bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/80 dark:text-blue-300 dark:border-blue-800"
                             : log.action === "DELETE"
-                            ? "bg-rose-950 text-rose-300"
-                            : "bg-slate-800 text-slate-300"
+                            ? "bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/80 dark:text-rose-300 dark:border-rose-800"
+                            : "bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                         }`}
                       >
                         {log.action}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 text-emerald-400">{log.resource}</td>
+                    <td className="py-2.5 px-4 text-emerald-700 dark:text-emerald-400 font-semibold">{log.resource}</td>
                     <td className="py-2.5 px-4 text-slate-400">{log.ip}</td>
                     <td className="py-2.5 px-4">
                       <span
@@ -290,7 +290,7 @@ export default function AdminAuditLogsPage() {
                         {log.statusCode}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 text-slate-300 max-w-xs truncate" title={log.details}>
+                    <td className="py-2.5 px-4 text-slate-700 dark:text-slate-300 max-w-xs truncate" title={log.details}>
                       {log.details}
                     </td>
                   </tr>
@@ -303,4 +303,7 @@ export default function AdminAuditLogsPage() {
     </div>
   );
 }
+
+
+
 

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { MetricCard } from "@/components/ui/MetricCard";
@@ -118,7 +118,7 @@ export default function AdminUsersPage() {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-white">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/90 p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4 text-slate-900 dark:text-white transition-colors">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
@@ -127,15 +127,15 @@ export default function AdminUsersPage() {
             </span>
           </div>
           <h1 className="text-2xl font-black">User Accounts & Role Permissions</h1>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Global identity management across Citizen reporters, Campus Org Admins, and Platform Operators.
           </p>
         </div>
       </div>
 
       {/* Notice Banner */}
-      <div className="p-3 rounded-xl bg-blue-950/40 border border-blue-800 text-xs text-blue-300">
-        ℹ️ <strong>RBAC Policy:</strong> Role elevation to Platform Administrator requires hardware security key MFA verification per platform policy.
+      <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-300">
+        â„¹ï¸ <strong>RBAC Policy:</strong> Role elevation to Platform Administrator requires hardware security key MFA verification per platform policy.
       </div>
 
       {/* Metrics Row */}
@@ -167,7 +167,7 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Search & Filter */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-slate-900/60 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-slate-900/60 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
         <div className="flex items-center gap-3 flex-1 min-w-[240px]">
           <Search className="w-4 h-4 text-slate-400 ml-1" />
           <input
@@ -175,7 +175,7 @@ export default function AdminUsersPage() {
             placeholder="Search by user name, email, or organization..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none w-full"
+            className="bg-transparent text-sm text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100 focus:outline-none w-full"
           />
         </div>
 
@@ -184,7 +184,7 @@ export default function AdminUsersPage() {
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
-            className="bg-slate-800 border border-slate-700 text-xs text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
+            className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs text-slate-900 dark:text-slate-200 rounded-lg px-2.5 py-1.5 focus:outline-none"
           >
             <option value="all">All Roles</option>
             <option value="platform_admin">Platform Admin</option>
@@ -195,10 +195,10 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Users Table */}
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/70 overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white transition-colors/70 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-950/60 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-mono">
+            <thead className="bg-slate-50 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
               <tr>
                 <th className="py-3 px-4">User</th>
                 <th className="py-3 px-4">Role</th>
@@ -208,33 +208,33 @@ export default function AdminUsersPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-slate-200 dark:divide-slate-800/80">
               {filtered.map((user) => (
-                <tr key={user.id} className="hover:bg-slate-800/40 transition">
+                <tr key={user.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                   <td className="py-3.5 px-4">
-                    <div className="font-bold text-slate-100">{user.name}</div>
+                    <div className="font-bold text-slate-900 dark:text-slate-100">{user.name}</div>
                     <div className="text-[11px] text-slate-400 font-mono mt-0.5">{user.email}</div>
                   </td>
                   <td className="py-3.5 px-4">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         user.role === "platform_admin"
-                          ? "bg-rose-950 text-rose-300 border border-rose-800"
+                          ? "bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800"
                           : user.role === "org_admin"
-                          ? "bg-blue-950 text-blue-300 border border-blue-800"
-                          : "bg-slate-800 text-slate-300"
+                          ? "bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800"
+                          : "bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                       }`}
                     >
                       {user.role.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="py-3.5 px-4 text-slate-300 text-xs">{user.organisation}</td>
+                  <td className="py-3.5 px-4 text-slate-700 dark:text-slate-300 text-xs">{user.organisation}</td>
                   <td className="py-3.5 px-4">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                         user.status === "Active"
-                          ? "bg-emerald-950 text-emerald-300 border border-emerald-800"
-                          : "bg-slate-800 text-slate-500"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800"
+                          : "bg-slate-100 text-slate-500 border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700"
                       }`}
                     >
                       {user.status}
@@ -248,8 +248,8 @@ export default function AdminUsersPage() {
                       onClick={() => toggleStatus(user.id)}
                       className={`px-2.5 py-1 rounded text-[11px] font-semibold border transition ${
                         user.status === "Active"
-                          ? "bg-rose-950/60 border-rose-800 text-rose-300 hover:bg-rose-900"
-                          : "bg-emerald-950/60 border-emerald-800 text-emerald-300 hover:bg-emerald-900"
+                          ? "bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950/60 dark:hover:bg-rose-900 dark:border-rose-800 dark:text-rose-300"
+                          : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:hover:bg-emerald-900 dark:border-emerald-800 dark:text-emerald-300"
                       }`}
                     >
                       {user.status === "Active" ? "Disable" : "Enable"}
@@ -264,4 +264,7 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+
+
+
 

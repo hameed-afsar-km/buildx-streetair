@@ -19,11 +19,15 @@ interface WhatIfComparisonChartProps {
     simulated: number;
   }[];
   height?: number;
+  simulatedStroke?: string;
+  simulatedLabel?: string;
 }
 
 export function WhatIfComparisonChart({
   hourlyProjection,
   height = 260,
+  simulatedStroke = "#10b981",
+  simulatedLabel = "Simulated Outcome",
 }: WhatIfComparisonChartProps) {
   return (
     <div style={{ width: "100%", height }}>
@@ -89,11 +93,11 @@ export function WhatIfComparisonChart({
           />
           <Line
             type="monotone"
-            name="Simulated Policy Outcome"
+            name={simulatedLabel}
             dataKey="simulated"
-            stroke="#10b981"
+            stroke={simulatedStroke}
             strokeWidth={2.5}
-            dot={{ r: 3, fill: "#10b981" }}
+            dot={{ r: 3, fill: simulatedStroke }}
           />
         </LineChart>
       </ResponsiveContainer>

@@ -11,28 +11,25 @@ import {
   Moon,
   Menu,
   X,
-  Radio,
-  Sparkles,
   User,
-  ShieldAlert,
-  Building2,
-  Cpu,
+  ShieldCheck,
+  FileWarning,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function PublicHeader() {
   const pathname = usePathname();
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { label: "Public Dashboard", href: "/dashboard" },
-    { label: "Interactive Map", href: "/map" },
-    { label: "Stations Grid", href: "/stations" },
-    { label: "Platform", href: "/platform" },
-    { label: "AI Intelligence", href: "/intelligence" },
-    { label: "Pricing & SaaS", href: "/pricing" },
+    { label: "Overview", href: "/dashboard" },
+    { label: "Air Map", href: "/map" },
+    { label: "Trends", href: "/history" },
+    { label: "Alerts", href: "/alerts" },
+    { label: "Predictions", href: "/dashboard/predictions" },
+    { label: "About", href: "/contact" },
   ];
 
   return (
@@ -50,7 +47,7 @@ export function PublicHeader() {
               </span>
             </div>
             <p className="text-[10px] text-slate-400 dark:text-slate-500 -mt-0.5 tracking-tight font-medium">
-              Environmental Intelligence
+              Environmental Monitoring
             </p>
           </div>
         </Link>
@@ -58,10 +55,13 @@ export function PublicHeader() {
         {/* Desktop Nav Items */}
         <nav className="hidden lg:flex items-center gap-1">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+            const isActive =
+              link.href === "/dashboard#live"
+                ? pathname === "/dashboard"
+                : pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href + "/"));
             return (
               <Link
-                key={link.href}
+                key={link.label}
                 href={link.href}
                 className={cn(
                   "px-3 py-1.5 rounded-lg text-xs font-semibold transition",
@@ -93,6 +93,16 @@ export function PublicHeader() {
 
         {/* Right Action Icons & Auth */}
         <div className="flex items-center gap-2">
+          {/* Direct Incident Report Button */}
+          <Link
+            href="/report"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition shadow-xs"
+            title="File an environmental pollution incident"
+          >
+            <FileWarning className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Report</span>
+          </Link>
+
           {/* Theme Switcher */}
           <button
             type="button"
@@ -103,53 +113,27 @@ export function PublicHeader() {
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          {/* User / Org Navigation */}
+          {/* User / Workspace Navigation */}
           {isAuthenticated && user ? (
             <div className="flex items-center gap-2">
-              {/* Quick links to workspaces */}
-              {user.role === "platform_admin" && (
+              {(user.role === "platform_admin" || user.role === "analyst") && (
                 <Link
                   href="/admin/command-centre"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/40 dark:text-red-300 dark:border-red-900 text-xs font-bold hover:bg-red-100 transition"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900 text-xs font-bold hover:bg-emerald-100 transition"
                 >
-                  <Cpu className="w-3.5 h-3.5" />
-                  <span>Admin Hub</span>
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>Admin</span>
                 </Link>
               )}
-
-              {user.role === "org_admin" && (
-                <Link
-                  href="/organisation/overview"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-900 text-xs font-bold hover:bg-indigo-100 transition"
-                >
-                  <Building2 className="w-3.5 h-3.5" />
-                  <span>Org Portal</span>
-                </Link>
-              )}
-
-              <Link
-                href="/app"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>My Portal</span>
-              </Link>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login"
-                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/register"
-                className="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold shadow-sm transition"
-              >
-                <span>Get Started</span>
-              </Link>
-            </div>
+            <Link
+              href="/login"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:bg-slate-800 dark:hover:bg-slate-100 transition shadow-sm"
+            >
+              <User className="w-3.5 h-3.5" />
+              <span>Admin Sign In</span>
+            </Link>
           )}
 
           {/* Mobile Menu Button */}
@@ -168,7 +152,7 @@ export function PublicHeader() {
         <div className="lg:hidden border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-4 pt-3 pb-6 space-y-2">
           {navLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
@@ -177,17 +161,26 @@ export function PublicHeader() {
             </Link>
           ))}
           <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-2">
-            <Link
-              href="/app"
-              onClick={() => setMobileMenuOpen(false)}
-              className="w-full text-center py-2 rounded-lg bg-brand-600 text-white text-xs font-bold"
-            >
-              Open User Workspace
-            </Link>
+            {isAuthenticated && user ? (
+              <Link
+                href="/admin/command-centre"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2 rounded-lg bg-emerald-600 text-white text-xs font-bold"
+              >
+                Admin Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="w-full text-center py-2 rounded-lg bg-slate-900 text-white text-xs font-bold"
+              >
+                Admin Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
     </header>
   );
 }
-

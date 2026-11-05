@@ -939,6 +939,7 @@ function startEngine(
 
   function tick(now: number) {
     raf = 0
+    if (!live.current) return
     const dt = Math.min(0.1, (now - last) / 1000)
     last = now
     const { settings: P, loop, speed, time: fixed } = live.current

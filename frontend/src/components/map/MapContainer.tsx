@@ -3,7 +3,6 @@
 import React from "react";
 import dynamic from "next/dynamic";
 import { MonitoringStation } from "@/lib/types";
-import { Skeleton } from "@/components/ui/LoadingSkeleton";
 import { MapPin } from "lucide-react";
 
 const DynamicMap = dynamic(
@@ -31,9 +30,10 @@ interface MapContainerProps {
   center?: [number, number];
   zoom?: number;
   heatmapIntensity?: number;
+  showControls?: boolean;
+  showLegend?: boolean;
 }
 
 export function MapContainer(props: MapContainerProps) {
   return <DynamicMap {...props} />;
 }
-

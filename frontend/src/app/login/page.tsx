@@ -75,7 +75,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickDemoLogin("org_admin", "/organisation/overview")}
+                onClick={() => handleQuickDemoLogin("org_admin", "/admin/command-centre")}
                 className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left hover:border-purple-500 transition shadow-xs"
               >
                 <span className="font-bold text-slate-800 dark:text-slate-200 block">Org Admin</span>
@@ -83,7 +83,7 @@ export default function LoginPage() {
               </button>
               <button
                 type="button"
-                onClick={() => handleQuickDemoLogin("analyst", "/organisation/analytics")}
+                onClick={() => handleQuickDemoLogin("analyst", "/admin/analytics")}
                 className="p-2 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-left hover:border-purple-500 transition shadow-xs"
               >
                 <span className="font-bold text-slate-800 dark:text-slate-200 block">Env Analyst</span>
@@ -165,4 +165,5 @@ export default function LoginPage() {
     </div>
   );
 }
+
 
